@@ -1,3 +1,4 @@
+import type { Asset } from "@prisma/client";
 import { requireAdmin } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { computeNextDue, computeStatus } from "@/lib/maintenance";
@@ -8,7 +9,10 @@ const DUE_SOON_WINDOW = 14;
 
 export default async function AdminAssetsPage() {
   await requireAdmin();
-  const assets = await prisma.asset.findMany({ orderBy: { updatedAt: "desc" } });
+  const assets: Asset[] = await prisma.asset.findMany({
+    orderBy: { updatedAt: "desc" },
+  });
+
 
   return (
     <main className="p-6 space-y-6">
