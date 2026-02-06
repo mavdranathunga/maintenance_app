@@ -51,3 +51,26 @@ export async function deleteAsset(formData: FormData) {
   await prisma.asset.delete({ where: { id } });
   revalidatePath("/admin/assets");
 }
+
+export async function updateAsset(formData: FormData) {
+  await requireAdmin();
+
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+
+  await prisma.asset.update({
+    where: { id },
+    data: {
+      assetId: String(formData.get("assetId")),
+      name: String(formData.get("name")),
+      category: String(formData.get("category")),
+      location: String(formData.get("location") || ""),
+      lastMaintenance: new Date(String(formData.get("lastMaintenance"))),
+      frequencyDays: Number(formData.get("frequencyDays")),
+      assignedTo: String(formData.get("assignedTo") || ""),
+      notes: String(formData.get("notes") || ""),
+    },
+  });
+
+  revalidatePath("/admin/assets");
+}

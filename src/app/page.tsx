@@ -1,48 +1,35 @@
-import { auth, signIn, signOut } from "@/auth";
+import { auth, signIn } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const session = await auth();
 
+  // ✅ already logged in → go straight to dashboard
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-2xl border p-6">
-        <h1 className="text-2xl font-semibold">Maintenance Dashboard</h1>
-        <p className="text-sm opacity-70 mt-1">Login to continue</p>
+    <main className="min-h-[70vh] flex items-center justify-center">
+      <div className="w-full max-w-md rounded-2xl glass-strong p-6">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Maintenance Dashboard
+        </h1>
+        <p className="mt-1 text-sm text-white/70">
+          Track assets. Never miss a schedule.
+        </p>
 
-        <div className="mt-6">
-          {!session ? (
-            <form
-              action={async () => {
-                "use server";
-                await signIn("google");
-              }}
-            >
-              <button className="w-full rounded-xl border px-4 py-2">
-                Sign in with Google
-              </button>
-            </form>
-          ) : (
-            <>
-              <div className="text-sm mt-2">
-                Logged in as <b>{session.user?.email}</b>
-              </div>
-
-              <div className="mt-4 flex gap-2">
-                <a className="flex-1 rounded-xl border px-4 py-2 text-center" href="/dashboard">
-                  Go to dashboard
-                </a>
-                <form
-                  action={async () => {
-                    "use server";
-                    await signOut();
-                  }}
-                >
-                  <button className="rounded-xl border px-4 py-2">Logout</button>
-                </form>
-              </div>
-            </>
-          )}
-        </div>
+        <form
+          className="mt-6"
+          action={async () => {
+            "use server";
+            await signIn("google");
+          }}
+        >
+          <button className="w-full rounded-xl glass glass-hover px-4 py-2 transition">
+            Sign in with Google
+          </button>
+        </form>
       </div>
     </main>
   );

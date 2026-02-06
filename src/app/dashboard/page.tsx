@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { computeNextDue, computeStatus } from "@/lib/maintenance";
 import AssetsClient from "./AssetsClient";
+import LogoutButton from "@/components/LogoutButton";
+
 
 const DUE_SOON_WINDOW = 14;
 
@@ -34,20 +36,24 @@ export default async function Dashboard() {
 
   return (
     <main className="p-6 space-y-6">
-      <header className="flex items-center justify-between gap-4">
+      <header className="rounded-2xl glass-strong shadow-[0_20px_80px_rgba(0,0,0,0.45)] p-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Maintenance Dashboard</h1>
-          <p className="text-sm opacity-70">
-            Logged in as {session.user?.email} — Role: {role}
+          <h1 className="text-2xl font-semibold tracking-tight">Maintenance Dashboard</h1>
+          <p className="text-sm text-white/70">
+            {session.user?.email} • Role: {role}
           </p>
         </div>
-
-        {role === "ADMIN" && (
-          <a className="rounded-xl border px-4 py-2" href="/admin/assets">
-            Manage Assets
-          </a>
-        )}
+        
+        <div className="flex gap-2">
+          {role === "ADMIN" && (
+            <a className="rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/assets">
+              Manage Assets
+            </a>
+          )}
+          <LogoutButton />
+        </div>
       </header>
+
 
       <AssetsClient assets={view} />
     </main>

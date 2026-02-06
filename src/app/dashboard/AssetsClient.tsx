@@ -49,14 +49,14 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
       {/* Search + Filters */}
       <div className="grid gap-3 md:grid-cols-3">
         <input
-          className="rounded-xl border p-2 md:col-span-1"
+          className="rounded-xl glass px-3 py-2 text-sm text-white placeholder:text-white/40 bg-transparent outline-none focus:ring-2 focus:ring-purple-500/30"
           placeholder="Search by name / id / location..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
 
         <select
-          className="rounded-xl border p-2"
+          className="appearance-none rounded-xl glass px-3 py-2 text-sm text-white placeholder:text-white/40 bg-transparent outline-none focus:ring-2 focus:ring-purple-500/30"
           value={status}
           onChange={(e) => setStatus(e.target.value as any)}
         >
@@ -67,7 +67,7 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
         </select>
 
         <select
-          className="rounded-xl border p-2"
+          className="appearance-none rounded-xl glass px-3 py-2 text-sm text-white placeholder:text-white/40 bg-transparent outline-none focus:ring-2 focus:ring-purple-500/30"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
@@ -80,7 +80,7 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border overflow-hidden">
+      <div className="rounded-2xl glass-strong shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
         <div className="p-4 border-b flex items-center justify-between">
           <div className="font-semibold">Assets</div>
           <div className="text-sm opacity-70">{filtered.length} shown</div>
@@ -89,7 +89,7 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left opacity-70">
-              <tr className="border-b">
+              <tr className="border-b border-white/10">
                 <th className="p-3">Asset</th>
                 <th className="p-3">Category</th>
                 <th className="p-3">Location</th>
@@ -100,7 +100,7 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
             </thead>
             <tbody>
               {filtered.map((a) => (
-                <tr key={a.id} className="border-b last:border-b-0">
+                <tr key={a.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/[0.04] transition">
                   <td className="p-3">
                     <div className="font-medium">{a.name}</div>
                     <div className="opacity-70">{a.assetId}</div>
@@ -131,11 +131,19 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
 }
 
 function Badge({ status }: { status: "OK" | "DUE_SOON" | "OVERDUE" }) {
-  const label =
-    status === "OK" ? "OK" : status === "DUE_SOON" ? "Due Soon" : "Overdue";
+  const label = status === "OK" ? "OK" : status === "DUE_SOON" ? "Due Soon" : "Overdue";
+
+  const cls =
+    status === "OK"
+      ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+      : status === "DUE_SOON"
+      ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+      : "border-rose-300/20 bg-rose-300/10 text-rose-100";
+
   return (
-    <span className="inline-flex items-center rounded-full border px-2 py-1 text-xs">
+    <span className={`inline-flex items-center rounded-full border px-2 py-1 text-xs ${cls}`}>
       {label}
     </span>
   );
 }
+

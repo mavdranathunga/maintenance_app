@@ -23,12 +23,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <html lang="en" className="h-full">
+  <body className="min-h-screen text-white overflow-x-hidden">
+    {/* Background (locked, does not affect scroll bounds) */}
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-[#070A12]">
+      <div className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-purple-600/20 blur-3xl" />
+      <div className="absolute top-10 -right-40 h-[520px] w-[520px] rounded-full bg-cyan-400/15 blur-3xl" />
+      <div className="absolute -bottom-40 left-1/3 h-[520px] w-[520px] rounded-full bg-orange-400/10 blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-transparent" />
+    </div>
+
+    {/* App container (page scroll works normally) */}
+    <div className="mx-auto w-full max-w-6xl px-4 py-10">
+      {children}
+    </div>
+  </body>
+</html>
+
+
   );
 }
