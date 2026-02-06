@@ -13,52 +13,88 @@ export async function GET(req: Request) {
 
   const assets = await prisma.asset.findMany();
 
-  const due = assets
-    .map((a) => {
-      const nextDue = computeNextDue(a.lastMaintenance, a.frequencyDays);
-      const status = computeStatus(nextDue, dueSoonWindow);
-      return { a, nextDue, status };
-    })
-    .filter((x) => x.status === "DUE_SOON" || x.status === "OVERDUE")
-    .filter((x) => !!x.a.assignedTo); // must have recipient
+  const grouped: Record<string, Array<{
+    asset: typeof assets[number];
+    nextDue: Date;
+    status: "DUE_SOON" | "OVERDUE";
+  }>> = {};
+  
+  for (const a of assets) {
+    if (!a.assignedTo) continue;
+  
+    const nextDue = computeNextDue(a.lastMaintenance, a.frequencyDays);
+    const status = computeStatus(nextDue, dueSoonWindow);
+  
+    if (status !== "DUE_SOON" && status !== "OVERDUE") continue;
+  
+    if (!grouped[a.assignedTo]) grouped[a.assignedTo] = [];
+    grouped[a.assignedTo].push({ asset: a, nextDue, status });
+  }
+
 
   let sent = 0;
-  const errors: Array<{ assetId: string; error: string }> = [];
-
-  for (const item of due) {
+  const errors: Array<{ to: string; error: string }> = [];
+  
+  for (const [email, items] of Object.entries(grouped)) {
     try {
-      const to = item.a.assignedTo!;
       const subject =
-        item.status === "OVERDUE"
-          ? `OVERDUE: ${item.a.name} (${item.a.assetId})`
-          : `Due Soon: ${item.a.name} (${item.a.assetId})`;
-
+        items.some(i => i.status === "OVERDUE")
+          ? "Maintenance Alert: Overdue Assets"
+          : "Maintenance Reminder: Upcoming Assets";
+  
+      const rows = items.map(i => `
+        <tr>
+          <td>${i.asset.name}</td>
+          <td>${i.asset.assetId}</td>
+          <td>${i.asset.category}</td>
+          <td>${i.nextDue.toISOString().slice(0,10)}</td>
+          <td>${i.status === "OVERDUE" ? "Overdue" : "Due Soon"}</td>
+        </tr>
+      `).join("");
+  
       const html = `
-        <div style="font-family: ui-sans-serif, system-ui; line-height: 1.5">
+        <div style="font-family: system-ui, sans-serif">
           <h2>${subject}</h2>
-          <p><b>Asset:</b> ${item.a.name} (${item.a.assetId})</p>
-          <p><b>Category:</b> ${item.a.category}</p>
-          <p><b>Location:</b> ${item.a.location ?? "-"}</p>
-          <p><b>Last Maintenance:</b> ${item.a.lastMaintenance.toISOString().slice(0,10)}</p>
-          <p><b>Frequency:</b> ${item.a.frequencyDays} days</p>
-          <p><b>Next Due:</b> ${item.nextDue.toISOString().slice(0,10)}</p>
-          <p><b>Status:</b> ${item.status === "OVERDUE" ? "Overdue" : "Due Soon"}</p>
-          ${item.a.notes ? `<p><b>Notes:</b> ${item.a.notes}</p>` : ""}
+          <p>The following assets need maintenance attention:</p>
+  
+          <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse">
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>ID</th>
+                <th>Category</th>
+                <th>Next Due</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+  
+          <p style="margin-top:12px">
+            Please schedule maintenance accordingly.
+          </p>
         </div>
       `;
-
-      await sendReminderEmail({ to, subject, html });
+  
+      await sendReminderEmail({
+        to: email,
+        subject,
+        html,
+      });
+  
       sent++;
     } catch (e: any) {
-      errors.push({ assetId: item.a.assetId, error: e?.message || "unknown" });
+      errors.push({ to: email, error: e?.message || "unknown" });
     }
   }
 
+  
+
   return NextResponse.json({
     ok: true,
-    candidates: assets.length,
-    dueCount: due.length,
-    sent,
+    recipients: Object.keys(grouped).length,
+    emailsSent: sent,
     errors,
   });
+
 }
