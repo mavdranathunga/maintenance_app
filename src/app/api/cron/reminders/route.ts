@@ -6,31 +6,19 @@ import { sendReminderEmail } from "@/lib/email";
 export const dynamic = "force-dynamic"; // avoid any caching weirdness
 
 export async function GET(req: Request) {
-  const cronHeader = req.headers.get("x-vercel-cron");
   const ua = req.headers.get("user-agent") || "";
-  const secret = new URL(req.url).searchParams.get("secret");
-  const okSecret = secret && secret === process.env.CRON_SECRET;
+  const hasVercelCronHeader = req.headers.has("x-vercel-cron");
 
-  // ✅ Accept vercel cron in multiple forms
+  // manual trigger support (optional)
+  const secret = new URL(req.url).searchParams.get("secret");
+  const okSecret = secret === process.env.CRON_SECRET;
+
   const isVercelCron =
-    req.headers.has("x-vercel-cron") ||           // header present (any value)
-    cronHeader === "1" ||                         // common value
-    ua.startsWith("vercel-cron");                 // fallback (Vercel Cron UA)
+    hasVercelCronHeader ||
+    ua.startsWith("vercel-cron");
 
   if (!isVercelCron && !okSecret) {
-    // ✅ return safe debug info (no secrets leaked)
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "Unauthorized",
-        debug: {
-          hasXVerceCron: req.headers.has("x-vercel-cron"),
-          xVercelCron: cronHeader,
-          userAgent: ua,
-        },
-      },
-      { status: 401 }
-    );
+    return NextResponse.json({ ok: false }, { status: 401 });
   }
 
   const dueSoonWindow = Number(process.env.DUE_SOON_WINDOW_DAYS || "14");
