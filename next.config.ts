@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["pdfkit"],
+  // (optional for older Next setups)
+  experimental: {
+    serverComponentsExternalPackages: ["pdfkit"],
+  },
   reactCompiler: true,
 };
 
