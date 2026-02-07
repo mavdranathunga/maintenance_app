@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import MaintenanceActions from "@/app/admin/assets/MaintenanceActions";
+
 
 type Asset = {
   id: string;
@@ -96,6 +98,7 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
                 <th className="p-3">Next Due</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Assigned</th>
+                <th className="p-3">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -112,6 +115,11 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
                     <Badge status={a.status} />
                   </td>
                   <td className="p-3">{a.assignedTo ?? "-"}</td>
+                  <td className="p-3">
+                    <div className="inline-flex items-center gap-2">
+                      <MaintenanceActions assetId={a.id} />
+                    </div>
+                  </td>
                 </tr>
               ))}
 

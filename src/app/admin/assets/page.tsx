@@ -2,7 +2,6 @@ import type { Asset } from "@prisma/client";
 import { requireAdmin } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import { computeNextDue, computeStatus } from "@/lib/maintenance";
-import AddAssetForm from "./AddAssetForm";
 import { deleteAsset } from "./actions";
 import LogoutButton from "@/components/LogoutButton";
 import EditAssetButton from "@/app/admin/assets/EditAssetButton";

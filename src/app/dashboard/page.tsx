@@ -46,6 +46,11 @@ export default async function Dashboard() {
         
         <div className="flex gap-2">
           {role === "ADMIN" && (
+            <a className="rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/records">
+              Reports
+            </a>
+          )}
+          {role === "ADMIN" && (
             <a className="rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/assets">
               Manage Assets
             </a>

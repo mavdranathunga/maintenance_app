@@ -41,6 +41,8 @@ model User {
   sessions      Session[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  maintenanceRecords MaintenanceRecord[]
 }
 
 model Asset {
@@ -60,6 +62,7 @@ model Asset {
   @@index([category])
   @@index([name])
   @@index([assetId])
+  records MaintenanceRecord[]
 }
 
 model Account {
@@ -96,4 +99,29 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+enum MaintenanceAction {
+  COMPLETED
+  RESCHEDULED
+  NOTE
+}
+
+model MaintenanceRecord {
+  id            String            @id @default(cuid())
+  assetId       String
+  action        MaintenanceAction
+  performedAt   DateTime          @default(now())
+  scheduledFor  DateTime?         // only when rescheduled/planned
+  remark        String?
+
+  performedById String?
+  performedBy   User?             @relation(fields: [performedById], references: [id], onDelete: SetNull)
+
+  asset         Asset             @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime          @default(now())
+
+  @@index([assetId, performedAt])
+  @@index([action, performedAt])
 }
