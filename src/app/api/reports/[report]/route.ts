@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { computeNextDue, computeStatus } from "@/lib/maintenance";
 import ExcelJS from "exceljs";
-import PDFDocument from "pdfkit";
-import path from "path";
+import { createPdfDoc, drawHeader, drawTable, drawFooters } from "@/lib/pdfReport";
+import { auth } from "@/auth";
+
 
 
 export const runtime = "nodejs"; // important for pdfkit/exceljs
@@ -24,7 +25,20 @@ function dateOrNull(s: string | null) {
 
 export async function GET( req: Request, ctx: { params: Promise<{ report: string }> } ) {
   const { report } = await ctx.params;
+
+  const session = await auth();
+  if (!session?.user?.email) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const preparedBy = session.user.email;
+
+
   const { from, to, format } = parseRange(req.url);
+
+  const rangeLabel =
+  from && to ? `Period: ${from} to ${to}` : from ? `From: ${from}` : to ? `To: ${to}` : "Period: All time";
+
 
   const fromD = dateOrNull(from);
   const toD = dateOrNull(to);
@@ -52,8 +66,9 @@ export async function GET( req: Request, ctx: { params: Promise<{ report: string
     });
 
     return format === "xlsx"
-      ? statusExcel(rows)
-      : statusPdf(rows);
+  ? statusExcel(rows)
+  : statusPdf(rows, rangeLabel, preparedBy);
+
   }
 
   if (report === "records") {
@@ -73,7 +88,7 @@ export async function GET( req: Request, ctx: { params: Promise<{ report: string
 
     return format === "xlsx"
       ? recordsExcel(records)
-      : recordsPdf(records);
+      : recordsPdf(records, rangeLabel, preparedBy);
   }
 
   if (report === "completed_monthly") {
@@ -103,7 +118,7 @@ export async function GET( req: Request, ctx: { params: Promise<{ report: string
 
     return format === "xlsx"
       ? completedMonthlyExcel(rows)
-      : completedMonthlyPdf(rows);
+      : completedMonthlyPdf(rows, rangeLabel, preparedBy);
   }
 
   return NextResponse.json({ ok: false, error: "Unknown report" }, { status: 404 });
@@ -169,126 +184,186 @@ async function completedMonthlyExcel(rows: { month: string; count: number }[]) {
   });
 }
 
+
+
+
+
+
+
 /* ---------------- PDF generators ---------------- */
 
-function statusPdf(rows: any[]) {
-  const doc = new PDFDocument({
-    margin: 36,
-    autoFirstPage: true
-  });
-
-  const fontPath = path.join(
-    process.cwd(),
-    "public",
-    "fonts",
-    "Roboto-Regular.ttf"
-  );
-
-  doc.registerFont("Roboto", fontPath);
-  doc.font("Roboto");
-
+function statusPdf(rows: any[], rangeLabel: string, preparedBy: string) {
+  const doc = createPdfDoc();
   const chunks: Buffer[] = [];
 
   doc.on("data", (c) => chunks.push(c));
   const done = new Promise<Buffer>((res) => doc.on("end", () => res(Buffer.concat(chunks))));
 
-  doc.fontSize(16).text("Overdue / Due Soon Snapshot", { underline: true });
-  doc.moveDown(0.5);
-  doc.fontSize(10).text(`Generated: ${new Date().toISOString().slice(0, 10)}`);
-  doc.moveDown();
+  drawHeader(doc, {
+    title: "Maintenance Status Report",
+    subtitle: "Overdue / Due Soon",
+    dateRange: rangeLabel,
+    reportId: `STAT-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}`,
+    preparedBy,
+  });
 
-  rows
-    .filter((r) => r.status !== "OK")
-    .forEach((r) => {
-      doc.fontSize(11).text(`${r.status} • ${r.name} (${r.assetId})`);
-      doc.fontSize(9).fillColor("gray").text(`Next Due: ${r.nextDue} • Category: ${r.category} • Assigned: ${r.assignedTo || "-"}`);
-      doc.fillColor("white").moveDown(0.6);
+  const filtered = rows.filter((r) => r.status !== "OK");
+
+  drawTable(
+    doc,
+    [
+      { header: "Asset", width: 90 },
+      { header: "Category", width: 80 },
+      { header: "Next Due", width: 90 },
+      { header: "Status", width: 80 },
+      { header: "Assigned To", width: 170 },
+    ],
+    filtered.map((r) => [
+      `${r.name} (${r.assetId})`,
+      r.category,
+      r.nextDue,
+      r.status === "DUE_SOON" ? "Due Soon" : "Overdue",
+      r.assignedTo || "-",
+    ])
+  );
+
+  drawFooters(doc);
+  doc.end();
+
+  return done.then(
+    (buf) =>
+      new NextResponse(new Uint8Array(buf), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="status-report.pdf"`,
+        },
+      })
+  );
+}
+
+
+
+
+
+
+
+
+
+function recordsPdf(records: any[], rangeLabel: string, preparedBy: string) {
+  const doc = createPdfDoc();
+  const chunks: Buffer[] = [];
+
+  doc.on("data", (c) => chunks.push(c));
+  const done = new Promise<Buffer>((res) => doc.on("end", () => res(Buffer.concat(chunks))));
+
+  drawHeader(doc, {
+    title: "Maintenance Records Report",
+    subtitle: "Completed / Rescheduled History",
+    dateRange: rangeLabel,
+    reportId: `REC-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}`,
+    preparedBy,
+  });
+
+  drawTable(
+    doc,
+    [
+      { header: "Date", width: 60 },
+      { header: "Action", width: 90 },
+      { header: "Asset", width: 80 },
+      { header: "Scheduled", width: 60 },
+      { header: "Updated By", width: 160 },
+      { header: "Remarks", width: 160 },
+    ],
+    records.map((r: any) => [
+      r.performedAt.toISOString().slice(0, 10),
+      r.action,
+      `${r.asset.name} (${r.asset.assetId})`,
+      r.scheduledFor ? r.scheduledFor.toISOString().slice(0, 10) : "-",
+      r.updatedByEmail || "-",
+    ])
+  );
+
+  // Remarks section (optional but corporate)
+  // If you want remarks inside table, we need multi-line rows. Safer: put remarks as a bullet list.
+  const withRemark = records.filter((r: any) => r.remark && String(r.remark).trim().length);
+  if (withRemark.length) {
+    doc.moveDown(0.5);
+    doc.font("Helvetica-Bold").fontSize(11).fillColor("#0f172a").text("Remarks (latest)");
+    doc.moveDown(0.3);
+
+    doc.font("Helvetica").fontSize(9).fillColor("#0f172a");
+    withRemark.slice(0, 12).forEach((r: any) => {
+      doc.text(
+        `• ${r.performedAt.toISOString().slice(0, 10)} ${r.asset.assetId}: ${String(r.remark).slice(0, 140)}`,
+        { lineGap: 2 }
+      );
     });
+  }
 
+  drawFooters(doc);
   doc.end();
 
-  return done.then((buf) =>
-    new NextResponse(new Uint8Array(buf), {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="status-report.pdf"`,
-      },
-    })
+  return done.then(
+    (buf) =>
+      new NextResponse(new Uint8Array(buf), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="maintenance-records.pdf"`,
+        },
+      })
   );
 }
 
-function recordsPdf(records: any[]) {
-  const doc = new PDFDocument({
-    margin: 36,
-    autoFirstPage: true
-  });
 
-  const fontPath = path.join(
-    process.cwd(),
-    "public",
-    "fonts",
-    "Roboto-Regular.ttf"
-  );
 
-  doc.registerFont("Roboto", fontPath);
-  doc.font("Roboto");
 
+
+
+
+
+
+
+function completedMonthlyPdf(rows: { month: string; count: number }[], rangeLabel: string, preparedBy: string) {
+  const doc = createPdfDoc();
   const chunks: Buffer[] = [];
 
   doc.on("data", (c) => chunks.push(c));
   const done = new Promise<Buffer>((res) => doc.on("end", () => res(Buffer.concat(chunks))));
 
-  doc.fontSize(16).text("Maintenance Records", { underline: true });
-  doc.moveDown(0.5);
-  doc.fontSize(10).text(`Generated: ${new Date().toISOString().slice(0, 10)}`);
-  doc.moveDown();
-
-  records.slice(0, 300).forEach((r) => {
-    doc.fontSize(11).text(`${r.performedAt.toISOString().slice(0, 10)} • ${r.action}`);
-    doc.fontSize(9).fillColor("gray").text(
-      `${r.asset.assetId} • ${r.asset.name} • Updated by: ${r.updatedByEmail ?? "-"}`
-    );
-    if (r.scheduledFor) doc.text(`Scheduled For: ${r.scheduledFor.toISOString().slice(0, 10)}`);
-    if (r.remark) doc.text(`Remark: ${r.remark}`);
-    doc.fillColor("white").moveDown(0.6);
+  drawHeader(doc, {
+    title: "Completed Maintenance Report",
+    subtitle: "Completed per Month",
+    dateRange: rangeLabel,
+    reportId: `CMP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}`,
+    preparedBy,
   });
 
+  const total = rows.reduce((sum, r) => sum + r.count, 0);
+
+  // Summary line
+  doc.font("Helvetica-Bold").fontSize(11).fillColor("#0f172a").text(`Total Completed: ${total}`);
+  doc.moveDown(0.6);
+
+  drawTable(
+    doc,
+    [
+      { header: "Month", width: 220 },
+      { header: "Completed Count", width: 200 },
+    ],
+    rows.map((r) => [r.month, String(r.count)])
+  );
+
+  drawFooters(doc);
   doc.end();
 
-  return done.then((buf) =>
-    new NextResponse(new Uint8Array(buf), {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="maintenance-records.pdf"`,
-      },
-    })
+  return done.then(
+    (buf) =>
+      new NextResponse(new Uint8Array(buf), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="completed-per-month.pdf"`,
+        },
+      })
   );
 }
 
-function completedMonthlyPdf(rows: { month: string; count: number }[]) {
-  const doc = new PDFDocument({ margin: 36 });
-
-  const fontPath = path.join(process.cwd(), "public/fonts/Roboto-Regular.ttf");
-  doc.font(fontPath);
-
-  const chunks: Buffer[] = [];
-
-  doc.on("data", (c) => chunks.push(c));
-  const done = new Promise<Buffer>((res) => doc.on("end", () => res(Buffer.concat(chunks))));
-
-  doc.fontSize(16).text("Completed Maintenance per Month", { underline: true });
-  doc.moveDown();
-
-  rows.forEach((r) => doc.fontSize(12).text(`${r.month}: ${r.count}`));
-
-  doc.end();
-
-  return done.then((buf) =>
-    new NextResponse(new Uint8Array(buf), {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="completed-per-month.pdf"`,
-      },
-    })
-  );
-}
