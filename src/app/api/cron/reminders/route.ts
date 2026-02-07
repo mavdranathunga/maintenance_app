@@ -3,17 +3,34 @@ import { prisma } from "@/lib/prisma";
 import { computeNextDue, computeStatus } from "@/lib/maintenance";
 import { sendReminderEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic"; // avoid any caching weirdness
+
 export async function GET(req: Request) {
-
-  // Allow Vercel Cron header
-  const isVercelCron = req.headers.get("x-vercel-cron") === "1";
-
-  // OR allow manual trigger with secret
+  const cronHeader = req.headers.get("x-vercel-cron");
+  const ua = req.headers.get("user-agent") || "";
   const secret = new URL(req.url).searchParams.get("secret");
   const okSecret = secret && secret === process.env.CRON_SECRET;
 
+  // ✅ Accept vercel cron in multiple forms
+  const isVercelCron =
+    req.headers.has("x-vercel-cron") ||           // header present (any value)
+    cronHeader === "1" ||                         // common value
+    ua.startsWith("vercel-cron");                 // fallback (Vercel Cron UA)
+
   if (!isVercelCron && !okSecret) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    // ✅ return safe debug info (no secrets leaked)
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Unauthorized",
+        debug: {
+          hasXVerceCron: req.headers.has("x-vercel-cron"),
+          xVercelCron: cronHeader,
+          userAgent: ua,
+        },
+      },
+      { status: 401 }
+    );
   }
 
   const dueSoonWindow = Number(process.env.DUE_SOON_WINDOW_DAYS || "14");
