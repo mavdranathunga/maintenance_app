@@ -119,7 +119,7 @@ async function statusExcel(rows: any[]) {
   ws.columns.forEach((c) => (c.width = 18));
 
   const buf = await wb.xlsx.writeBuffer();
-  return new NextResponse(Buffer.from(buf), {
+  return new NextResponse(new Uint8Array(buf), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="status-report.xlsx"`,
@@ -145,7 +145,7 @@ async function recordsExcel(records: any[]) {
   ws.columns.forEach((c) => (c.width = 18));
 
   const buf = await wb.xlsx.writeBuffer();
-  return new NextResponse(Buffer.from(buf), {
+  return new NextResponse(new Uint8Array(buf), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="maintenance-records.xlsx"`,
@@ -161,7 +161,7 @@ async function completedMonthlyExcel(rows: { month: string; count: number }[]) {
   ws.columns.forEach((c) => (c.width = 22));
 
   const buf = await wb.xlsx.writeBuffer();
-  return new NextResponse(Buffer.from(buf), {
+  return new NextResponse(new Uint8Array(buf), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "Content-Disposition": `attachment; filename="completed-per-month.xlsx"`,
@@ -208,7 +208,7 @@ function statusPdf(rows: any[]) {
   doc.end();
 
   return done.then((buf) =>
-    new NextResponse(buf, {
+    new NextResponse(new Uint8Array(buf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="status-report.pdf"`,
@@ -256,7 +256,7 @@ function recordsPdf(records: any[]) {
   doc.end();
 
   return done.then((buf) =>
-    new NextResponse(buf, {
+    new NextResponse(new Uint8Array(buf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="maintenance-records.pdf"`,
@@ -284,7 +284,7 @@ function completedMonthlyPdf(rows: { month: string; count: number }[]) {
   doc.end();
 
   return done.then((buf) =>
-    new NextResponse(buf, {
+    new NextResponse(new Uint8Array(buf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="completed-per-month.pdf"`,
