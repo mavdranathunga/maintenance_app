@@ -41,8 +41,6 @@ model User {
   sessions      Session[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
-  maintenanceRecords MaintenanceRecord[]
 }
 
 model Asset {
@@ -115,13 +113,12 @@ model MaintenanceRecord {
   scheduledFor  DateTime?         // only when rescheduled/planned
   remark        String?
 
-  performedById String?
-  performedBy   User?             @relation(fields: [performedById], references: [id], onDelete: SetNull)
-
+  updatedByEmail String?
+  
   asset         Asset             @relation(fields: [assetId], references: [id], onDelete: Cascade)
-
   createdAt     DateTime          @default(now())
 
   @@index([assetId, performedAt])
   @@index([action, performedAt])
+  @@index([updatedByEmail])
 }

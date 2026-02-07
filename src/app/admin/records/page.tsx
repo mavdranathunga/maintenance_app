@@ -1,6 +1,8 @@
 import { requireAdmin } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 
+import LogoutButton from "@/components/LogoutButton";
+
 export default async function RecordsPage() {
   await requireAdmin();
 
@@ -17,9 +19,15 @@ export default async function RecordsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Maintenance Records</h1>
           <p className="text-sm text-white/70">History of completed and rescheduled maintenance</p>
         </div>
-        <a className="rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/dashboard">
-          Back to Dashboard
-        </a>
+        <div className="flex items-center gap-2">
+          <a className="rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/admin/reports">
+            Reports
+          </a>
+          <a className="rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/dashboard">
+            Dashboard
+          </a>
+          <LogoutButton />
+        </div>
       </header>
 
       <section className="rounded-2xl glass-strong overflow-hidden">
@@ -31,6 +39,7 @@ export default async function RecordsPage() {
                 <th className="p-3">Action</th>
                 <th className="p-3">Asset</th>
                 <th className="p-3">Scheduled For</th>
+                <th className="p-3">Updated by</th>
                 <th className="p-3">Remark</th>
               </tr>
             </thead>
@@ -44,6 +53,7 @@ export default async function RecordsPage() {
                     <div className="text-white/60">{r.asset.assetId}</div>
                   </td>
                   <td className="p-3">{r.scheduledFor ? r.scheduledFor.toISOString().slice(0, 10) : "-"}</td>
+                  <td className="p-3">{r.updatedByEmail ?? "-"}</td>
                   <td className="p-3">{r.remark ?? "-"}</td>
                 </tr>
               ))}

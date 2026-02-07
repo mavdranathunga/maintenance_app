@@ -76,7 +76,8 @@ export async function updateAsset(formData: FormData) {
 }
 
 export async function completeMaintenance(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const updatedByEmail = session.user?.email ?? null;
 
   const assetId = String(formData.get("assetId") || "");
   const remark = String(formData.get("remark") || "");
@@ -84,9 +85,6 @@ export async function completeMaintenance(formData: FormData) {
 
   if (!assetId || !performedAtStr) return;
 
-  // optional: store which admin did it
-  // const session = await requireAdmin();
-  // const userId = (session.user as any)?.id;
 
   await prisma.$transaction(async (tx) => {
     // record
@@ -96,7 +94,7 @@ export async function completeMaintenance(formData: FormData) {
         action: "COMPLETED",
         performedAt: new Date(performedAtStr),
         remark: remark || null,
-        // performedById: userId ?? null,
+        updatedByEmail,
       },
     });
 
@@ -114,7 +112,8 @@ export async function completeMaintenance(formData: FormData) {
 }
 
 export async function rescheduleMaintenance(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const updatedByEmail = session.user?.email ?? null;
 
   const assetId = String(formData.get("assetId") || "");
   const scheduledForStr = String(formData.get("scheduledFor") || "");
@@ -128,7 +127,7 @@ export async function rescheduleMaintenance(formData: FormData) {
       action: "RESCHEDULED",
       scheduledFor: new Date(scheduledForStr),
       remark: remark || null,
-      // performedById: userId ?? null,
+      updatedByEmail,
     },
   });
 
