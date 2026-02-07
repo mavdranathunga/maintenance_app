@@ -20,42 +20,65 @@ export default function ReportForm() {
   }, [report, format, from, to]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <div>
-        <label className="text-sm text-white/70">Report</label>
-        <select className={input} value={report} onChange={(e) => setReport(e.target.value)}>
-          <option value="status">Overdue / Due Soon snapshot</option>
-          <option value="completed_monthly">Completed per month</option>
-          <option value="records">Maintenance records (detailed)</option>
-        </select>
+    <section>
+      {/* Controls */}
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Report Type */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-white/70">
+            Report Type
+          </label>
+          <select className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20">
+            <option>Overdue / Due Soon snapshot</option>
+            <option>Maintenance Records</option>
+            <option>Completed per Month</option>
+          </select>
+        </div>
+    
+        {/* Format */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-white/70">
+            Format
+          </label>
+          <select className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20">
+            <option>PDF</option>
+            <option>Excel</option>
+          </select>
+        </div>
       </div>
-
-      <div>
-        <label className="text-sm text-white/70">Format</label>
-        <select className={input} value={format} onChange={(e) => setFormat(e.target.value)}>
-          <option value="pdf">PDF</option>
-          <option value="xlsx">Excel (.xlsx)</option>
-        </select>
+    
+      {/* Date Range */}
+      <div className="mt-6">
+        <label className="mb-2 block text-sm font-medium text-white/70">
+          Date Range (optional)
+        </label>
+    
+        <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] items-center">
+          <input
+            type="date"
+            className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20"
+          />
+    
+          <span className="hidden md:block text-white/40 text-sm">
+            —
+          </span>
+    
+          <input
+            type="date"
+            className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20"
+          />
+        </div>
       </div>
-
-      <div>
-        <label className="text-sm text-white/70">From (optional)</label>
-        <input className={input} type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-      </div>
-
-      <div>
-        <label className="text-sm text-white/70">To (optional)</label>
-        <input className={input} type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-      </div>
-
-      <div className="md:col-span-2 flex justify-end">
+    
+      {/* Action */}
+      <div className="mt-8 flex justify-end">
         <a
           className="rounded-xl glass glass-hover px-4 py-2 text-sm transition"
           href={url}
         >
-          Generate & Download
+          Generate Report
         </a>
       </div>
-    </div>
+    </section>
   );
 }
