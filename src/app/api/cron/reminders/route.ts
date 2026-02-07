@@ -4,8 +4,15 @@ import { computeNextDue, computeStatus } from "@/lib/maintenance";
 import { sendReminderEmail } from "@/lib/email";
 
 export async function GET(req: Request) {
+
+  // Allow Vercel Cron header
+  const isVercelCron = req.headers.get("x-vercel-cron") === "1";
+
+  // OR allow manual trigger with secret
   const secret = new URL(req.url).searchParams.get("secret");
-  if (!secret || secret !== process.env.CRON_SECRET) {
+  const okSecret = secret && secret === process.env.CRON_SECRET;
+
+  if (!isVercelCron && !okSecret) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
