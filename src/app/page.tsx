@@ -1,5 +1,6 @@
 import { auth, signIn } from "@/auth";
 import { redirect } from "next/navigation";
+import ExpiredBanner from "@/components/ExpiredBanner";
 
 export default async function Home() {
   const session = await auth();
@@ -7,6 +8,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-[80vh] flex items-center justify-center">
+      <ExpiredBanner />
       <div className="relative w-full max-w-5xl">
         {/* Glow */}
         <div className="pointer-events-none absolute -inset-6 -z-10 opacity-70 blur-3xl">

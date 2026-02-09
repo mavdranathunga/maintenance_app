@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import Providers from "./providers";
+
+import IdleLogout from "@/components/IdleLogout";
 
 export const metadata: Metadata = {
   title: "Maintenance Dashboard",
@@ -23,13 +26,17 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] to-transparent" />
         </div>
 
-        {/* Content */}
-        <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-10">
-          {children}
-        </main>
+        <Providers>
+          {/* session-related client logic */}
+          <IdleLogout minutes={30} />
 
-        {/* Footer visible everywhere EXCEPT auth */}
-        <Footer />
+          {/* App content */}
+          <main className="flex-1 mx-auto w-full max-w-6xl px-4 py-10">
+            {children}
+          </main>
+
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

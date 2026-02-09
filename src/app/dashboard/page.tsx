@@ -10,7 +10,7 @@ const DUE_SOON_WINDOW = 14;
 
 export default async function Dashboard() {
   const session = await auth();
-  if (!session) redirect("/");
+  if (!session) redirect("/signin");
 
   const role = (session.user as any)?.role;
 
