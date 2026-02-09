@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import MaintenanceActions from "@/app/admin/assets/MaintenanceActions";
+import MaintenanceActions from "@/app/(app)/admin/assets/MaintenanceActions";
 
 
 type Asset = {

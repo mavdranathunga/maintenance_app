@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { computeNextDue, computeStatus } from "@/lib/maintenance";
 import { deleteAsset } from "./actions";
 import LogoutButton from "@/components/LogoutButton";
-import EditAssetButton from "@/app/admin/assets/EditAssetButton";
+import EditAssetButton from "@/app/(app)/admin/assets/EditAssetButton";
 import StatusBadge from "@/components/StatusBadge";
 import AddAssetButton from "./AddAssetButton";
 
