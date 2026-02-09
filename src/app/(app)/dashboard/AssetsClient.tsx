@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import MaintenanceActions from "@/app/(app)/admin/assets/MaintenanceActions";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
+import { CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 
 type Asset = {
   id: string;
@@ -57,28 +58,53 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
           onChange={(e) => setQ(e.target.value)}
         />
 
-        <select
-          className="appearance-none rounded-xl glass px-3 py-2 text-sm text-white placeholder:text-white/40 bg-transparent outline-none focus:ring-2 focus:ring-purple-500/30"
-          value={status}
-          onChange={(e) => setStatus(e.target.value as any)}
-        >
-          <option value="ALL">All Status</option>
-          <option value="OK">OK</option>
-          <option value="DUE_SOON">Due Soon</option>
-          <option value="OVERDUE">Overdue</option>
-        </select>
+        <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+          <SelectTrigger className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
 
-        <select
-          className="appearance-none rounded-xl glass px-3 py-2 text-sm text-white placeholder:text-white/40 bg-transparent outline-none focus:ring-2 focus:ring-purple-500/30"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c === "ALL" ? "All Categories" : c}
-            </option>
-          ))}
-        </select>
+          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+            <SelectItem value="ALL" className="focus:bg-white/10 focus:text-white">
+              All Status
+            </SelectItem>
+            <SelectItem value="OK" className="flex items-center gap-2 focus:bg-white/10 focus:text-white">
+              <div className="flex items-center gap-2">
+                <Clock className="h-3 w-3 text-emerald-400" />
+                OK
+              </div>
+            </SelectItem>
+            <SelectItem value="DUE_SOON" className="focus:bg-white/10 focus:text-white">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-3 w-3 text-amber-400" />
+                Due Soon
+              </div>
+            </SelectItem>
+            <SelectItem value="OVERDUE" className="focus:bg-white/10 focus:text-white">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-3 w-3 text-red-400" />
+                Overdue
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={category} onValueChange={(v) => setCategory(v)}>
+          <SelectTrigger className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+
+          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+            {categories.map((c) => (
+              <SelectItem
+                key={c}
+                value={c}
+                className="focus:bg-white/10 focus:text-white "
+              >
+                {c === "ALL" ? "All Categories" : c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}

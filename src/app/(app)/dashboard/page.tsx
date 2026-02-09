@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { computeNextDue, computeStatus } from "@/lib/maintenance";
 import AssetsClient from "./AssetsClient";
 import LogoutButton from "@/components/LogoutButton";
+import { Package, BarChart3 } from "lucide-react";
 
 
 const DUE_SOON_WINDOW = 14;
@@ -46,12 +47,14 @@ export default async function Dashboard() {
         
         <div className="flex gap-2">
           {role === "ADMIN" && (
-            <a className="rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/reports">
+            <a className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/reports">
+              <BarChart3 className="h-4 w-4 text-blue-400" />
               Reports
             </a>
           )}
           {role === "ADMIN" && (
-            <a className="rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/assets">
+            <a className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/assets">
+              <Package className="h-4 w-4 text-purple-400" />
               Manage Assets
             </a>
           )}

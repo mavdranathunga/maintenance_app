@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import IdleLogout from "@/components/IdleLogout";
+import { Toaster } from "sonner";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton
+        toastOptions={{
+          className:
+            "bg-[#0b1020]/90 backdrop-blur-xl border border-white/12 text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]",
+        }}
+      />
       <Footer />
     </div>
   );
