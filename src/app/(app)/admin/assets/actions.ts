@@ -4,6 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/guards";
+import {
+  createBadRequestError,
+  createValidationError,
+  type ErrorResponse,
+} from "@/lib/errors";
 
 const AssetSchema = z.object({
   assetId: z.string().min(2),
@@ -30,7 +35,12 @@ export async function createAsset(formData: FormData) {
     notes: (formData.get("notes") as string) || undefined,
   });
 
-  if (!parsed.success) return;
+  if (!parsed.success) {
+    return createValidationError(
+      "Invalid asset data",
+      parsed.error.flatten().fieldErrors
+    ).toJSON();
+  }
 
   await prisma.asset.create({
     data: {
@@ -40,23 +50,25 @@ export async function createAsset(formData: FormData) {
   });
 
   revalidatePath("/admin/assets");
+  return { ok: true as const };
 }
 
 export async function deleteAsset(formData: FormData) {
   await requireAdmin();
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return createBadRequestError("Asset ID is required").toJSON();
 
   await prisma.asset.delete({ where: { id } });
   revalidatePath("/admin/assets");
+  return { ok: true as const };
 }
 
 export async function updateAsset(formData: FormData) {
   await requireAdmin();
 
   const id = String(formData.get("id") || "");
-  if (!id) return;
+  if (!id) return createBadRequestError("Asset ID is required").toJSON();
 
   await prisma.asset.update({
     where: { id },
@@ -73,6 +85,7 @@ export async function updateAsset(formData: FormData) {
   });
 
   revalidatePath("/admin/assets");
+  return { ok: true as const };
 }
 
 export async function completeMaintenance(formData: FormData) {
@@ -83,7 +96,9 @@ export async function completeMaintenance(formData: FormData) {
   const remark = String(formData.get("remark") || "");
   const performedAtStr = String(formData.get("performedAt") || "");
 
-  if (!assetId || !performedAtStr) return;
+  if (!assetId || !performedAtStr) {
+    return createBadRequestError("Asset ID and date are required").toJSON();
+  }
 
 
   await prisma.$transaction(async (tx) => {
@@ -109,6 +124,7 @@ export async function completeMaintenance(formData: FormData) {
 
   revalidatePath("/admin/assets");
   revalidatePath("/dashboard");
+  return { ok: true as const };
 }
 
 export async function rescheduleMaintenance(formData: FormData) {
@@ -119,7 +135,9 @@ export async function rescheduleMaintenance(formData: FormData) {
   const scheduledForStr = String(formData.get("scheduledFor") || "");
   const remark = String(formData.get("remark") || "");
 
-  if (!assetId || !scheduledForStr) return;
+  if (!assetId || !scheduledForStr) {
+    return createBadRequestError("Asset ID and date are required").toJSON();
+  }
 
   await prisma.maintenanceRecord.create({
     data: {

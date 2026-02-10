@@ -14,13 +14,18 @@ export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) 
   const onSubmit = (formData: FormData) => {
     startTransition(async () => {
       try {
-        await createAsset(formData);
+        const res = await createAsset(formData);
 
-        toast.success("Asset created", {
-          description: "The asset was added successfully.",
-        });
-
-        onSuccess?.();
+        if (res && "ok" in res && res.ok) {
+          toast.success("Asset created", {
+            description: "The asset was added successfully.",
+          });
+          onSuccess?.();
+        } else if (res && "error" in res) {
+          toast.error("Create failed", {
+            description: res.error.message,
+          });
+        }
       } catch (e: any) {
         toast.error("Create failed", {
           description: e?.message ?? "Please check inputs and try again.",

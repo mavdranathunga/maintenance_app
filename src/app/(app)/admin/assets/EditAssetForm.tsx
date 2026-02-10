@@ -20,13 +20,18 @@ export default function EditAssetForm({
   const onSubmit = (formData: FormData) => {
     startTransition(async () => {
       try {
-        await updateAsset(formData);
+        const res = await updateAsset(formData);
 
-        toast.success("Asset updated", {
-          description: "Changes saved successfully.",
-        });
-
-        onSuccess?.();
+        if (res && "ok" in res && res.ok) {
+          toast.success("Asset updated", {
+            description: "Changes saved successfully.",
+          });
+          onSuccess?.();
+        } else if (res && "error" in res) {
+          toast.error("Update failed", {
+            description: res.error.message,
+          });
+        }
       } catch (e: any) {
         toast.error("Update failed", {
           description: e?.message ?? "Something went wrong.",

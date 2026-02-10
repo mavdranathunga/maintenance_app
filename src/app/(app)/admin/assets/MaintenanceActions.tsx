@@ -50,13 +50,18 @@ export default function MaintenanceActions({ assetId }: { assetId: string }) {
                   // required hidden field
                   fd.set("assetId", assetId);
 
-                  await completeMaintenance(fd);
+                  const res = await completeMaintenance(fd);
 
-                  toast.success("Marked as completed", {
-                    description: "Maintenance record saved successfully.",
-                  });
-
-                  setOpenComplete(false);
+                  if (res && "ok" in res && res.ok) {
+                    toast.success("Marked as completed", {
+                      description: "Maintenance record saved successfully.",
+                    });
+                    setOpenComplete(false);
+                  } else if (res && "error" in res) {
+                    toast.error("Failed to complete", {
+                      description: res.error.message,
+                    });
+                  }
                 } catch (e: any) {
                   toast.error("Failed to complete", {
                     description: e?.message ?? "Something went wrong.",
@@ -131,13 +136,18 @@ export default function MaintenanceActions({ assetId }: { assetId: string }) {
                 try {
                   fd.set("assetId", assetId);
 
-                  await rescheduleMaintenance(fd);
+                  const res = await rescheduleMaintenance(fd);
 
-                  toast.success("Rescheduled", {
-                    description: "Maintenance record saved successfully.",
-                  });
-
-                  setOpenReschedule(false);
+                  if (res && "ok" in res && res.ok) {
+                    toast.success("Rescheduled", {
+                      description: "Maintenance record saved successfully.",
+                    });
+                    setOpenReschedule(false);
+                  } else if (res && "error" in res) {
+                    toast.error("Failed to reschedule", {
+                      description: res.error.message,
+                    });
+                  }
                 } catch (e: any) {
                   toast.error("Failed to reschedule", {
                     description: e?.message ?? "Something went wrong.",

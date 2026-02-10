@@ -4,6 +4,11 @@ import { computeNextDue, computeStatus } from "@/lib/maintenance";
 import ExcelJS from "exceljs";
 import { createPdfDoc, drawHeader, drawTable, drawFooters } from "@/lib/pdfReport";
 import { auth } from "@/auth";
+import {
+  createBadRequestError,
+  createNotFoundError,
+  createUnauthorizedError,
+} from "@/lib/errors";
 
 
 
@@ -23,12 +28,12 @@ function dateOrNull(s: string | null) {
   return isNaN(d.getTime()) ? null : d;
 }
 
-export async function GET( req: Request, ctx: { params: Promise<{ report: string }> } ) {
+export async function GET(req: Request, ctx: { params: Promise<{ report: string }> }) {
   const { report } = await ctx.params;
 
   const session = await auth();
   if (!session?.user?.email) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(createUnauthorizedError().toJSON(), { status: 401 });
   }
 
   const preparedBy = session.user.email;
@@ -37,14 +42,17 @@ export async function GET( req: Request, ctx: { params: Promise<{ report: string
   const { from, to, format } = parseRange(req.url);
 
   const rangeLabel =
-  from && to ? `${from} to ${to}` : from ? `From: ${from}` : to ? `To: ${to}` : "All time";
+    from && to ? `${from} to ${to}` : from ? `From: ${from}` : to ? `To: ${to}` : "All time";
 
 
   const fromD = dateOrNull(from);
   const toD = dateOrNull(to);
 
   if (format !== "pdf" && format !== "xlsx") {
-    return NextResponse.json({ ok: false, error: "format must be pdf or xlsx" }, { status: 400 });
+    return NextResponse.json(
+      createBadRequestError("format must be pdf or xlsx").toJSON(),
+      { status: 400 }
+    );
   }
 
   if (report === "status") {
@@ -66,8 +74,8 @@ export async function GET( req: Request, ctx: { params: Promise<{ report: string
     });
 
     return format === "xlsx"
-  ? statusExcel(rows)
-  : statusPdf(rows, rangeLabel, preparedBy);
+      ? statusExcel(rows)
+      : statusPdf(rows, rangeLabel, preparedBy);
 
   }
 
@@ -121,7 +129,9 @@ export async function GET( req: Request, ctx: { params: Promise<{ report: string
       : completedMonthlyPdf(rows, rangeLabel, preparedBy);
   }
 
-  return NextResponse.json({ ok: false, error: "Unknown report" }, { status: 404 });
+  return NextResponse.json(createNotFoundError("Unknown report").toJSON(), {
+    status: 404,
+  });
 }
 
 /* ---------------- Excel generators ---------------- */

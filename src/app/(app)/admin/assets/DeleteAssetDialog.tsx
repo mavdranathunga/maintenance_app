@@ -31,11 +31,17 @@ export default function DeleteAssetDialog({
         const fd = new FormData();
         fd.append("id", assetId);
 
-        await deleteAsset(fd);
+        const res = await deleteAsset(fd);
 
-        toast.success("Asset deleted", {
-          description: `${label} was removed.`,
-        });
+        if (res && "ok" in res && res.ok) {
+          toast.success("Asset deleted", {
+            description: `${label} was removed.`,
+          });
+        } else if (res && "error" in res) {
+          toast.error("Delete failed", {
+            description: res.error.message,
+          });
+        }
       } catch (e: any) {
         toast.error("Delete failed", {
           description: e?.message ?? "Something went wrong.",
@@ -47,10 +53,10 @@ export default function DeleteAssetDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button 
+        <Button
           className="rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-100 text-xs"
           size="sm"
-        >  
+        >
           Delete
         </Button>
       </AlertDialogTrigger>
