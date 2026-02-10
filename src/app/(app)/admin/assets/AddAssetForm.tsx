@@ -32,17 +32,41 @@ export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) 
   return (
     <form action={onSubmit} className="space-y-4">
       <div className="grid gap-3 md:grid-cols-2">
-        <input className={input} name="assetId" placeholder="Asset ID (unique)" required />
-        <input className={input} name="name" placeholder="Asset Name" required />
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Asset ID</label>
+          <input className={input} name="assetId" placeholder="Asset ID (unique)" required />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Assert Name</label>
+          <input className={input} name="name" placeholder="Asset Name" required />
+        </div>
 
-        <input className={input} name="category" placeholder="Category (Server/UPS/...)" required />
-        <input className={input} name="location" placeholder="Location (optional)" />
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Category</label>
+          <input className={input} name="category" placeholder="Category (Server/UPS/...)" required />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Location</label>
+          <input className={input} name="location" placeholder="Location (optional)" />
+        </div>
 
-        <input className={input} type="date" name="lastMaintenance" required />
-        <input className={input} type="number" name="frequencyDays" placeholder="Frequency days (e.g., 30)" required />
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Next Maintenance Date</label>
+          <input className={input} type="date" name="lastMaintenance" required />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Frequency (Days)</label>
+          <input className={input} type="number" name="frequencyDays" placeholder="Frequency days (e.g., 30)" required />
+        </div>
 
-        <input className={`${input} md:col-span-2`} name="assignedTo" placeholder="Assigned To (email)" />
-        <textarea className={`${input} md:col-span-2`} name="notes" placeholder="Notes (optional)" rows={3} />
+        <div className="flex flex-col gap-1 md:col-span-2">
+          <label className="text-xs text-white/50 font-medium">Assigned To (email)</label>
+          <input className={`${input} md:col-span-2`} name="assignedTo" placeholder="Assigned To (email)" />
+        </div>
+        <div className="flex flex-col gap-1 md:col-span-2">
+          <label className="text-xs text-white/50 font-medium">Remarks</label>
+          <textarea className={`${input} md:col-span-2`} name="notes" placeholder="Notes (optional)" rows={3} />
+        </div>
       </div>
 
       <div className="flex justify-end pt-2">

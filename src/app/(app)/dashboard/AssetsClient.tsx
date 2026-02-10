@@ -111,13 +111,16 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
       <div className="rounded-2xl glass-strong shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
         <div className="p-4 border-b flex items-center justify-between">
           <div className="font-semibold">Assets</div>
-          <div className="text-sm opacity-70">{filtered.length} shown</div>
+          <div className="mt-3 text-xs text-white/60">
+            Showing <span className="text-white/80">{filtered.length}</span> of{" "}
+            <span className="text-white/80">{assets.length}</span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="mx-auto w-full max-w-5xl text-sm">
             <thead className="text-left opacity-70">
-              <tr className="border-b border-white/10">
+              <tr className="border-b border-white/10 text-white/70">
                 <th className="p-3">Asset</th>
                 <th className="p-3">Category</th>
                 <th className="p-3">Location</th>

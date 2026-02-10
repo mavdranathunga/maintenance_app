@@ -57,122 +57,119 @@ export default function AssetsTableClient({
   }, [assets, q, category, location]);
 
   return (
-    <>
+    <div className="space-y-4">
       {/* Filters row */}
-      <div className="p-4 border-b border-white/10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/45" />
-            <input
-              className={`${input} pl-10`}
-              placeholder="Search by asset id / name / category / location..."
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </div>
-
-          {/* Category */}
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white
-                         focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20"
-            >
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-          
-            <SelectContent className="border-white/15 bg-[#0b1020]/95 backdrop-blur-xl text-white">
-              <SelectItem value="ALL">All Categories</SelectItem>
-              {categories.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-
-          {/* Location */}
-          <Select value={location} onValueChange={setLocation}>
-            <SelectTrigger
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white
-                         focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20"
-            >
-              <SelectValue placeholder="All Locations" />
-            </SelectTrigger>
-                  
-            <SelectContent className="border-white/15 bg-[#0b1020]/95 backdrop-blur-xl text-white">
-              <SelectItem value="ALL">All Locations</SelectItem>
-              {locations.map((l) => (
-                <SelectItem key={l} value={l}>
-                  {l}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
+      <div className="grid gap-3 md:grid-cols-3">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/45" />
+          <input
+            className={`${input} pl-10`}
+            placeholder="Search by asset id / name / category / location..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
         </div>
-
-        <div className="mt-3 text-xs text-white/60">
-          Showing <span className="text-white/80">{filtered.length}</span> of{" "}
-          <span className="text-white/80">{assets.length}</span> assets
-        </div>
+        {/* Category */}
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger
+            className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30"
+          >
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+        
+          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+            <SelectItem className="focus:bg-white/10 focus:text-white" value="ALL">All Categories</SelectItem>
+            {categories.map((c) => (
+              <SelectItem key={c} value={c} className="focus:bg-white/10 focus:text-white">
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {/* Location */}
+        <Select value={location} onValueChange={setLocation}>
+          <SelectTrigger
+            className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30"
+          >
+            <SelectValue placeholder="All Locations" />
+          </SelectTrigger>
+                
+          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+            <SelectItem className="focus:bg-white/10 focus:text-white" value="ALL">All Locations</SelectItem>
+            {locations.map((l) => (
+              <SelectItem key={l} value={l} className="focus:bg-white/10 focus:text-white">
+                {l}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}
-      <div className="flex justify-center">
-        <table className="mx-auto w-full max-w-5xl text-sm">
-          <thead className="text-left opacity-70">
-            <tr className="border-b border-white/10 text-white/70">
-              <th className="p-3">Asset ID</th>
-              <th className="p-3">Asset name</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Location</th>
-              <th className="p-3 text-center">Frequency</th>
-              <th className="p-3 text-center w-[220px]">Actions</th>
-            </tr>
-          </thead>
+      <div className="rounded-2xl glass-strong shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
+        <div className="p-4 border-b flex items-center justify-between">
+          <h2 className="font-semibold">All Assets</h2>
+          <div className="mt-3 text-xs text-white/60">
+            Showing <span className="text-white/80">{filtered.length}</span> of{" "}
+            <span className="text-white/80">{assets.length}</span> assets
+          </div>
+        </div>
 
-          <tbody>
-            {filtered.map((a) => (
-              <tr
-                key={a.id}
-                className="border-b border-white/10 last:border-b-0 hover:bg-white/[0.04] transition"
-              >
-                <td className="p-3 text-white/80">{a.assetId}</td>
-                <td className="p-3">
-                  <div className="font-medium">{a.name}</div>
-                </td>
-                <td className="p-3">{a.category}</td>
-                <td className="p-3">{a.location ?? "-"}</td>
-                <td className="p-3 text-center">{a.frequencyDays}d</td>
-
-                <td className="p-3 whitespace-nowrap">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="shrink-0">
-                      <EditAssetButton asset={a} />
-                    </div>
-                    <div className="shrink-0">
-                      <DeleteAssetDialog
-                        assetId={a.id}
-                        label={`${a.name} (${a.assetId})`}
-                      />
-                    </div>
-                  </div>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="mx-auto w-full max-w-5xl text-sm">
+            <thead className="text-left opacity-70">
+              <tr className="border-b border-white/10 text-white/70">
+                <th className="p-3">Asset ID</th>
+                <th className="p-3">Asset name</th>
+                <th className="p-3">Category</th>
+                <th className="p-3">Location</th>
+                <th className="p-3 text-center">Frequency</th>
+                <th className="p-3 text-center w-[220px]">Actions</th>
               </tr>
-            ))}
+            </thead>
 
-            {filtered.length === 0 && (
-              <tr>
-                <td className="p-6 text-white/60" colSpan={6}>
-                  No matching assets.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+            <tbody>
+              {filtered.map((a) => (
+                <tr
+                  key={a.id}
+                  className="border-b border-white/10 last:border-b-0 hover:bg-white/[0.04] transition"
+                >
+                  <td className="p-3 text-white/80">{a.assetId}</td>
+                  <td className="p-3">
+                    <div className="font-medium">{a.name}</div>
+                  </td>
+                  <td className="p-3">{a.category}</td>
+                  <td className="p-3">{a.location ?? "-"}</td>
+                  <td className="p-3 text-center">{a.frequencyDays}d</td>
+
+                  <td className="p-3 whitespace-nowrap">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="shrink-0">
+                        <EditAssetButton asset={a} />
+                      </div>
+                      <div className="shrink-0">
+                        <DeleteAssetDialog
+                          assetId={a.id}
+                          label={`${a.name} (${a.assetId})`}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {filtered.length === 0 && (
+                <tr>
+                  <td className="p-6 text-white/60" colSpan={6}>
+                    No matching assets.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

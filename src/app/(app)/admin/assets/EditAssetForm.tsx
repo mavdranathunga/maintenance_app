@@ -43,17 +43,41 @@ export default function EditAssetForm({
       <input type="hidden" name="id" value={asset.id} />
 
       <div className="grid gap-3 md:grid-cols-2">
-        <input className={`${input} opacity-70 cursor-not-allowed`} name="assetId" defaultValue={asset.assetId} readOnly />
-        <input className={input} name="name" defaultValue={asset.name} required />
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Asset ID</label>
+          <input className={`${input} opacity-70 cursor-not-allowed`} name="assetId" defaultValue={asset.assetId} readOnly />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Assert Name</label>
+          <input className={input} name="name" defaultValue={asset.name} required />
+        </div>
 
-        <input className={input} name="category" defaultValue={asset.category} required />
-        <input className={input} name="location" defaultValue={asset.location ?? ""} />
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Category</label>
+          <input className={input} name="category" defaultValue={asset.category} required />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Location</label>
+          <input className={input} name="location" defaultValue={asset.location ?? ""} />
+        </div>
 
-        <input className={`${input} opacity-70 cursor-not-allowed`} type="date" name="lastMaintenance" defaultValue={lastDate} readOnly />
-        <input className={input} type="number" name="frequencyDays" defaultValue={asset.frequencyDays} required />
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Next Maintenance Date</label>
+          <input className={`${input} opacity-70 cursor-not-allowed`} type="date" name="lastMaintenance" defaultValue={lastDate} readOnly />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/50 font-medium">Frequency (Days)</label>
+          <input className={input} type="number" name="frequencyDays" defaultValue={asset.frequencyDays} required />
+        </div>
 
-        <input className={`${input} md:col-span-2`} name="assignedTo" defaultValue={asset.assignedTo ?? ""} />
-        <textarea className={`${input} md:col-span-2`} name="notes" defaultValue={asset.notes ?? ""} rows={3} />
+        <div className="flex flex-col gap-1 md:col-span-2">
+          <label className="text-xs text-white/50 font-medium">Assigned To (email)</label>
+          <input className={`${input} md:col-span-2`} name="assignedTo" defaultValue={asset.assignedTo ?? ""} />
+        </div>
+        <div className="flex flex-col gap-1 md:col-span-2">
+          <label className="text-xs text-white/50 font-medium">Remarks</label>
+          <textarea className={`${input} md:col-span-2`} name="notes" defaultValue={asset.notes ?? ""} rows={3} />
+        </div>
       </div>
 
       <div className="flex justify-end pt-2">

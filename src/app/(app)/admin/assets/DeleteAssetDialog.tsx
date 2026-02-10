@@ -47,7 +47,10 @@ export default function DeleteAssetDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-100 text-xs">
+        <Button 
+          className="rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-100 text-xs"
+          size="sm"
+        >  
           Delete
         </Button>
       </AlertDialogTrigger>

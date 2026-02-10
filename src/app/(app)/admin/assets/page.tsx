@@ -55,17 +55,12 @@ export default async function AdminAssetsPage() {
         </div>
       </header>
 
-      <section className="rounded-2xl glass-strong overflow-hidden">
-        <div className="p-4 border-b border-white/10">
-          <h2 className="font-semibold">All Assets</h2>
-        </div>
-
-        <AssetsTableClient
-          assets={assets}
-          categories={categories}
-          locations={locations}
-        />
-      </section>
+      <AssetsTableClient
+        assets={assets}
+        categories={categories}
+        locations={locations}
+      />
+      
     </main>
   );
 }

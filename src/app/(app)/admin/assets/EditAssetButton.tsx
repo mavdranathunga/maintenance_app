@@ -17,7 +17,10 @@ export default function EditAssetButton({ asset }: { asset: any }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="rounded-xl bg-white/8 hover:bg-white/12 border border-white/10 text-white text-xs">
+        <Button 
+          className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20"
+          size="sm"
+        >
           Edit
         </Button>
       </DialogTrigger>
