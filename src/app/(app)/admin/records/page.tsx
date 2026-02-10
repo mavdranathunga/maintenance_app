@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
-
+import { LayoutDashboard, BarChart3 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
 export default async function RecordsPage() {
@@ -20,10 +20,15 @@ export default async function RecordsPage() {
           <p className="text-sm text-white/70">History of completed and rescheduled maintenance</p>
         </div>
         <div className="flex items-center gap-2">
-          <a className="rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/admin/reports">
+          <a className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/admin/reports">
+            <BarChart3 className="h-4 w-4 text-blue-400" />
             Reports
           </a>
-          <a className="rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/dashboard">
+          <a
+            href="/dashboard"
+            className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 text-sm transition"
+          >
+            <LayoutDashboard className="h-4 w-4 text-purple-400" />
             Dashboard
           </a>
           <LogoutButton />

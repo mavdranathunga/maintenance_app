@@ -43,7 +43,7 @@ export default async function AdminAssetsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <a className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/reports">
+          <a className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/admin/reports">
             <BarChart3 className="h-4 w-4 text-blue-400" />
             Reports
           </a>

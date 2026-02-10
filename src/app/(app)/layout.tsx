@@ -1,7 +1,7 @@
 import Footer from "@/components/Footer";
 import IdleLogout from "@/components/IdleLogout";
 import { Toaster } from "sonner";
-import FloatingAbout from "@/components/FloatingAbout";
+
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,7 +22,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}
       />
       <Footer />
-      <FloatingAbout />
+      
     </div>
   );
 }
