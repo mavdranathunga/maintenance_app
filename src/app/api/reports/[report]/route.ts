@@ -37,7 +37,7 @@ export async function GET( req: Request, ctx: { params: Promise<{ report: string
   const { from, to, format } = parseRange(req.url);
 
   const rangeLabel =
-  from && to ? `Period: ${from} to ${to}` : from ? `From: ${from}` : to ? `To: ${to}` : "Period: All time";
+  from && to ? `${from} to ${to}` : from ? `From: ${from}` : to ? `To: ${to}` : "All time";
 
 
   const fromD = dateOrNull(from);

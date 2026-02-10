@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/guards";
 import { prisma } from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
 import AddAssetButton from "./AddAssetButton";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, BarChart3 } from "lucide-react";
 import AssetsTableClient from "./AssetsClient";
 
 export default async function AdminAssetsPage() {
@@ -43,6 +43,10 @@ export default async function AdminAssetsPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <a className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 transition" href="/admin/reports">
+            <BarChart3 className="h-4 w-4 text-blue-400" />
+            Reports
+          </a>
           <a
             href="/dashboard"
             className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 text-sm transition"
@@ -50,7 +54,6 @@ export default async function AdminAssetsPage() {
             <LayoutDashboard className="h-4 w-4 text-purple-400" />
             Dashboard
           </a>
-          <AddAssetButton />
           <LogoutButton />
         </div>
       </header>

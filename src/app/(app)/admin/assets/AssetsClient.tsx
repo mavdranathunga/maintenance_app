@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import EditAssetButton from "@/app/(app)/admin/assets/EditAssetButton";
 import DeleteAssetDialog from "@/app/(app)/admin/assets/DeleteAssetDialog";
+import AddAssetButton from "./AddAssetButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Search } from "lucide-react";
 
@@ -59,51 +60,56 @@ export default function AssetsTableClient({
   return (
     <div className="space-y-4">
       {/* Filters row */}
-      <div className="grid gap-3 md:grid-cols-3">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/45" />
-          <input
-            className={`${input} pl-10`}
-            placeholder="Search by asset id / name / category / location..."
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex flex-col gap-3 md:flex-row md:flex-1">
+          {/* Search */}
+          <div className="relative md:flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/45" />
+            <input
+              className={`${input} pl-10`}
+              placeholder="Search by asset id / name / category / location..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+          {/* Category */}
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger
+              className="md:w-48 w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30"
+            >
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+
+            <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+              <SelectItem className="focus:bg-white/10 focus:text-white" value="ALL">All Categories</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c} value={c} className="focus:bg-white/10 focus:text-white">
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* Location */}
+          <Select value={location} onValueChange={setLocation}>
+            <SelectTrigger
+              className="md:w-48 w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30"
+            >
+              <SelectValue placeholder="All Locations" />
+            </SelectTrigger>
+
+            <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+              <SelectItem className="focus:bg-white/10 focus:text-white" value="ALL">All Locations</SelectItem>
+              {locations.map((l) => (
+                <SelectItem key={l} value={l} className="focus:bg-white/10 focus:text-white">
+                  {l}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        {/* Category */}
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger
-            className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30"
-          >
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-        
-          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
-            <SelectItem className="focus:bg-white/10 focus:text-white" value="ALL">All Categories</SelectItem>
-            {categories.map((c) => (
-              <SelectItem key={c} value={c} className="focus:bg-white/10 focus:text-white">
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {/* Location */}
-        <Select value={location} onValueChange={setLocation}>
-          <SelectTrigger
-            className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30"
-          >
-            <SelectValue placeholder="All Locations" />
-          </SelectTrigger>
-                
-          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
-            <SelectItem className="focus:bg-white/10 focus:text-white" value="ALL">All Locations</SelectItem>
-            {locations.map((l) => (
-              <SelectItem key={l} value={l} className="focus:bg-white/10 focus:text-white">
-                {l}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="md:ml-4 md:self-start">
+            <AddAssetButton />
+        </div>
       </div>
 
       {/* Table */}

@@ -34,7 +34,7 @@ export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) 
       <div className="grid gap-3 md:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label className="text-xs text-white/50 font-medium">Asset ID</label>
-          <input className={input} name="assetId" placeholder="Asset ID (unique)" required />
+          <input className={input} name="assetId" placeholder="Must be unique" required />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs text-white/50 font-medium">Assert Name</label>
@@ -43,11 +43,11 @@ export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) 
 
         <div className="flex flex-col gap-1">
           <label className="text-xs text-white/50 font-medium">Category</label>
-          <input className={input} name="category" placeholder="Category (Server/UPS/...)" required />
+          <input className={input} name="category" placeholder="Server / UPS / ..." required />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs text-white/50 font-medium">Location</label>
-          <input className={input} name="location" placeholder="Location (optional)" />
+          <input className={input} name="location" placeholder="(optional)" />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -56,16 +56,16 @@ export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) 
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs text-white/50 font-medium">Frequency (Days)</label>
-          <input className={input} type="number" name="frequencyDays" placeholder="Frequency days (e.g., 30)" required />
+          <input className={input} type="number" name="frequencyDays" placeholder="e.g., 30" required />
         </div>
 
         <div className="flex flex-col gap-1 md:col-span-2">
           <label className="text-xs text-white/50 font-medium">Assigned To (email)</label>
-          <input className={`${input} md:col-span-2`} name="assignedTo" placeholder="Assigned To (email)" />
+          <input className={`${input} md:col-span-2`} name="assignedTo" placeholder="someone@company.com" />
         </div>
         <div className="flex flex-col gap-1 md:col-span-2">
           <label className="text-xs text-white/50 font-medium">Remarks</label>
-          <textarea className={`${input} md:col-span-2`} name="notes" placeholder="Notes (optional)" rows={3} />
+          <textarea className={`${input} md:col-span-2`} name="notes" placeholder="Anything special..." rows={3} />
         </div>
       </div>
 
