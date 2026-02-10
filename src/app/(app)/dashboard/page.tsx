@@ -13,7 +13,7 @@ export default async function Dashboard() {
   const session = await auth();
   if (!session) redirect("/signin");
 
-  const role = (session.user as any)?.role;
+  const role = session.user.role;
 
   const assets = await prisma.asset.findMany({ orderBy: { updatedAt: "desc" } });
 
@@ -44,7 +44,7 @@ export default async function Dashboard() {
             {session.user?.email} • Role: {role}
           </p>
         </div>
-        
+
         <div className="flex gap-2">
           {role === "ADMIN" && (
             <a className="flex items-center gap-2 rounded-xl glass glass-hover px-4 py-2 text-sm transition" href="/admin/reports">

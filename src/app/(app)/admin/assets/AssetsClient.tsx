@@ -4,20 +4,10 @@ import { useMemo, useState } from "react";
 import EditAssetButton from "@/app/(app)/admin/assets/EditAssetButton";
 import DeleteAssetDialog from "@/app/(app)/admin/assets/DeleteAssetDialog";
 import AddAssetButton from "./AddAssetButton";
+import { type Asset } from "@prisma/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import { Search } from "lucide-react";
 
-export type AssetRow = {
-  id: string;
-  assetId: string;
-  name: string;
-  category: string;
-  location: string | null;
-  frequencyDays: number;
-  lastMaintenance: Date;
-  assignedTo: string | null;
-  notes: string | null;
-};
 
 const input =
   "w-full rounded-xl glass px-3 py-2 text-sm text-white placeholder:text-white/40 bg-transparent outline-none focus:ring-2 focus:ring-purple-500/30";
@@ -30,7 +20,7 @@ export default function AssetsTableClient({
   categories,
   locations,
 }: {
-  assets: AssetRow[];
+  assets: Asset[];
   categories: string[];
   locations: string[];
 }) {
@@ -108,7 +98,7 @@ export default function AssetsTableClient({
           </Select>
         </div>
         <div className="md:ml-4 md:self-start">
-            <AddAssetButton />
+          <AddAssetButton />
         </div>
       </div>
 

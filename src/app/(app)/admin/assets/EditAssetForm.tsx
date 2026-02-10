@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { updateAsset } from "./actions";
+import { type Asset } from "@prisma/client";
 
 const input =
   "w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:ring-2 focus:ring-purple-500/30";
@@ -12,7 +13,7 @@ export default function EditAssetForm({
   asset,
   onSuccess,
 }: {
-  asset: any;
+  asset: Asset;
   onSuccess?: () => void;
 }) {
   const [pending, startTransition] = useTransition();
@@ -32,9 +33,9 @@ export default function EditAssetForm({
             description: res.error.message,
           });
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         toast.error("Update failed", {
-          description: e?.message ?? "Something went wrong.",
+          description: e instanceof Error ? e.message : "Something went wrong.",
         });
       }
     });

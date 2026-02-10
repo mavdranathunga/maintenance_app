@@ -1,7 +1,32 @@
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
+import { JWT } from "next-auth/jwt";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      role: Role;
+      email: string;
+      name?: string | null;
+      image?: string | null;
+    } & DefaultSession["user"];
+  }
+
+  interface User {
+    role?: Role;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    uid?: string;
+    role?: Role;
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -23,16 +48,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // user is available on sign-in
       if (user) {
         token.uid = user.id;
-        token.role = (user as any).role ?? "USER";
+        token.role = user.role ?? Role.USER;
         token.email = user.email;
       }
       return token;
     },
 
     async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).id = token.uid;
-        (session.user as any).role = token.role ?? "USER";
+      if (session.user && token.uid) {
+        session.user.id = token.uid;
+        session.user.role = token.role ?? Role.USER;
         session.user.email = (token.email as string) ?? session.user.email;
       }
       return session;

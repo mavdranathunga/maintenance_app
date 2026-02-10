@@ -9,6 +9,7 @@ import {
   createNotFoundError,
   createUnauthorizedError,
 } from "@/lib/errors";
+import { MaintenanceRecord } from "@prisma/client";
 
 
 
@@ -80,7 +81,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ report: string 
   }
 
   if (report === "records") {
-    const where: any = {};
+    const where: { performedAt?: { gte?: Date; lte?: Date } } = {};
     if (fromD || toD) {
       where.performedAt = {};
       if (fromD) where.performedAt.gte = fromD;
@@ -101,7 +102,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ report: string 
 
   if (report === "completed_monthly") {
     // Simple approach: pull completed records and group in JS
-    const where: any = { action: "COMPLETED" };
+    const where: { action: "COMPLETED"; performedAt?: { gte?: Date; lte?: Date } } = { action: "COMPLETED" };
     if (fromD || toD) {
       where.performedAt = {};
       if (fromD) where.performedAt.gte = fromD;
@@ -136,7 +137,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ report: string 
 
 /* ---------------- Excel generators ---------------- */
 
-async function statusExcel(rows: any[]) {
+async function statusExcel(rows: Array<{ assetId: string, name: string, category: string, location: string, nextDue: string, status: string, assignedTo: string }>) {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("Status");
   ws.addRow(["Asset ID", "Name", "Category", "Location", "Next Due", "Status", "Assigned To"]);
@@ -152,7 +153,7 @@ async function statusExcel(rows: any[]) {
   });
 }
 
-async function recordsExcel(records: any[]) {
+async function recordsExcel(records: (MaintenanceRecord & { asset: { assetId: string; name: string } })[]) {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("Records");
   ws.addRow(["Date", "Action", "Asset ID", "Asset Name", "Scheduled For", "Remark", "Updated By"]);
@@ -202,7 +203,7 @@ async function completedMonthlyExcel(rows: { month: string; count: number }[]) {
 
 /* ---------------- PDF generators ---------------- */
 
-function statusPdf(rows: any[], rangeLabel: string, preparedBy: string) {
+function statusPdf(rows: Array<{ assetId: string, name: string, category: string, location: string, nextDue: string, status: string, assignedTo: string }>, rangeLabel: string, preparedBy: string) {
   const doc = createPdfDoc();
   const chunks: Buffer[] = [];
 
@@ -259,7 +260,7 @@ function statusPdf(rows: any[], rangeLabel: string, preparedBy: string) {
 
 
 
-function recordsPdf(records: any[], rangeLabel: string, preparedBy: string) {
+function recordsPdf(records: (MaintenanceRecord & { asset: { assetId: string; name: string } })[], rangeLabel: string, preparedBy: string) {
   const doc = createPdfDoc();
   const chunks: Buffer[] = [];
 
@@ -284,7 +285,7 @@ function recordsPdf(records: any[], rangeLabel: string, preparedBy: string) {
       { header: "Updated By", width: 160 },
       { header: "Remarks", width: 160 },
     ],
-    records.map((r: any) => [
+    records.map((r) => [
       r.performedAt.toISOString().slice(0, 10),
       r.action,
       `${r.asset.name} (${r.asset.assetId})`,
@@ -295,14 +296,14 @@ function recordsPdf(records: any[], rangeLabel: string, preparedBy: string) {
 
   // Remarks section (optional but corporate)
   // If you want remarks inside table, we need multi-line rows. Safer: put remarks as a bullet list.
-  const withRemark = records.filter((r: any) => r.remark && String(r.remark).trim().length);
+  const withRemark = records.filter((r) => r.remark && String(r.remark).trim().length);
   if (withRemark.length) {
     doc.moveDown(0.5);
     doc.font("Helvetica-Bold").fontSize(11).fillColor("#0f172a").text("Remarks (latest)");
     doc.moveDown(0.3);
 
     doc.font("Helvetica").fontSize(9).fillColor("#0f172a");
-    withRemark.slice(0, 12).forEach((r: any) => {
+    withRemark.slice(0, 12).forEach((r) => {
       doc.text(
         `• ${r.performedAt.toISOString().slice(0, 10)} ${r.asset.assetId}: ${String(r.remark).slice(0, 140)}`,
         { lineGap: 2 }

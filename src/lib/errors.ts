@@ -12,15 +12,15 @@ export interface ErrorResponse {
   error: {
     code: ErrorCode;
     message: string;
-    details?: any;
+    details?: unknown;
   };
 }
 
 export class AppError extends Error {
   public code: ErrorCode;
-  public details?: any;
+  public details?: unknown;
 
-  constructor(code: ErrorCode, message: string, details?: any) {
+  constructor(code: ErrorCode, message: string, details?: unknown) {
     super(message);
     this.name = "AppError";
     this.code = code;
@@ -39,7 +39,7 @@ export class AppError extends Error {
   }
 }
 
-export function isAppError(error: any): error is AppError {
+export function isAppError(error: unknown): error is AppError {
   return error instanceof AppError;
 }
 
@@ -55,7 +55,7 @@ export function createNotFoundError(message = "Resource not found") {
   return new AppError(ErrorCode.NOT_FOUND, message);
 }
 
-export function createValidationError(message = "Validation failed", details?: any) {
+export function createValidationError(message = "Validation failed", details?: unknown) {
   return new AppError(ErrorCode.VALIDATION_ERROR, message, details);
 }
 

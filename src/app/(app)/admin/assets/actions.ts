@@ -9,6 +9,8 @@ import {
   createValidationError,
   type ErrorResponse,
 } from "@/lib/errors";
+import { Asset } from "@prisma/client";
+
 
 const AssetSchema = z.object({
   assetId: z.string().min(2),
@@ -17,7 +19,7 @@ const AssetSchema = z.object({
   location: z.string().optional(),
   lastMaintenance: z.string().min(10),
   frequencyDays: z.coerce.number().int().min(1),
-  assignedTo: z.string().optional(),
+  assignedTo: z.string().email("Invalid email format").optional().or(z.literal("")),
   notes: z.string().optional(),
 });
 
@@ -70,17 +72,29 @@ export async function updateAsset(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (!id) return createBadRequestError("Asset ID is required").toJSON();
 
+  const parsed = AssetSchema.safeParse({
+    assetId: formData.get("assetId"),
+    name: formData.get("name"),
+    category: formData.get("category"),
+    location: (formData.get("location") as string) || undefined,
+    lastMaintenance: formData.get("lastMaintenance"),
+    frequencyDays: formData.get("frequencyDays"),
+    assignedTo: (formData.get("assignedTo") as string) || undefined,
+    notes: (formData.get("notes") as string) || undefined,
+  });
+
+  if (!parsed.success) {
+    return createValidationError(
+      "Invalid asset data",
+      parsed.error.flatten().fieldErrors
+    ).toJSON();
+  }
+
   await prisma.asset.update({
     where: { id },
     data: {
-      assetId: String(formData.get("assetId")),
-      name: String(formData.get("name")),
-      category: String(formData.get("category")),
-      location: String(formData.get("location") || ""),
-      lastMaintenance: new Date(String(formData.get("lastMaintenance"))),
-      frequencyDays: Number(formData.get("frequencyDays")),
-      assignedTo: String(formData.get("assignedTo") || ""),
-      notes: String(formData.get("notes") || ""),
+      ...parsed.data,
+      lastMaintenance: new Date(parsed.data.lastMaintenance),
     },
   });
 
@@ -150,4 +164,6 @@ export async function rescheduleMaintenance(formData: FormData) {
   });
 
   revalidatePath("/admin/assets");
+  revalidatePath("/dashboard");
+  return { ok: true as const };
 }

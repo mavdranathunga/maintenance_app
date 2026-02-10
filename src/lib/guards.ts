@@ -9,7 +9,7 @@ export async function requireAuth() {
 
 export async function requireAdmin() {
   const session = await requireAuth();
-  const role = (session.user as any)?.role;
+  const role = session.user.role;
   if (role !== "ADMIN") redirect("/dashboard"); // user can view dashboard but not admin pages
   return session;
 }

@@ -58,7 +58,7 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
           onChange={(e) => setQ(e.target.value)}
         />
 
-        <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+        <Select value={status} onValueChange={(v) => setStatus(v as Asset["status"] | "ALL")}>
           <SelectTrigger className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30">
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
@@ -174,8 +174,8 @@ function Badge({ status }: { status: "OK" | "DUE_SOON" | "OVERDUE" }) {
     status === "OK"
       ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
       : status === "DUE_SOON"
-      ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
-      : "border-rose-300/20 bg-rose-300/10 text-rose-100";
+        ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+        : "border-rose-300/20 bg-rose-300/10 text-rose-100";
 
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-1 text-xs ${cls}`}>

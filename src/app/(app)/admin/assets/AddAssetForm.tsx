@@ -26,9 +26,9 @@ export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) 
             description: res.error.message,
           });
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         toast.error("Create failed", {
-          description: e?.message ?? "Please check inputs and try again.",
+          description: e instanceof Error ? e.message : "Please check inputs and try again.",
         });
       }
     });

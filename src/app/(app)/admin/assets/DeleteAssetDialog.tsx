@@ -42,9 +42,9 @@ export default function DeleteAssetDialog({
             description: res.error.message,
           });
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         toast.error("Delete failed", {
-          description: e?.message ?? "Something went wrong.",
+          description: e instanceof Error ? e.message : "Something went wrong.",
         });
       }
     });

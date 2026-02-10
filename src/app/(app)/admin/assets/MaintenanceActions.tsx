@@ -61,10 +61,11 @@ export default function MaintenanceActions({ assetId }: { assetId: string }) {
                     toast.error("Failed to complete", {
                       description: res.error.message,
                     });
+                    setOpenComplete(false);
                   }
-                } catch (e: any) {
+                } catch (e: unknown) {
                   toast.error("Failed to complete", {
-                    description: e?.message ?? "Something went wrong.",
+                    description: e instanceof Error ? e.message : "Something went wrong.",
                   });
                 }
               });
@@ -147,10 +148,11 @@ export default function MaintenanceActions({ assetId }: { assetId: string }) {
                     toast.error("Failed to reschedule", {
                       description: res.error.message,
                     });
+                    setOpenReschedule(false);
                   }
-                } catch (e: any) {
+                } catch (e: unknown) {
                   toast.error("Failed to reschedule", {
-                    description: e?.message ?? "Something went wrong.",
+                    description: e instanceof Error ? e.message : "Something went wrong.",
                   });
                 }
               });

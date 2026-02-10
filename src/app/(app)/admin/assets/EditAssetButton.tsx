@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Edit } from "lucide-react";
 import EditAssetForm from "./EditAssetForm";
+import { type Asset } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,13 +13,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export default function EditAssetButton({ asset }: { asset: any }) {
+export default function EditAssetButton({ asset }: { asset: Asset }) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button 
+        <Button
           className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20"
           size="sm"
         >

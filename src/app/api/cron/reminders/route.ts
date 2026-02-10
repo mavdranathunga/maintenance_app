@@ -30,15 +30,15 @@ export async function GET(req: Request) {
     nextDue: Date;
     status: "DUE_SOON" | "OVERDUE";
   }>> = {};
-  
+
   for (const a of assets) {
     if (!a.assignedTo) continue;
-  
+
     const nextDue = computeNextDue(a.lastMaintenance, a.frequencyDays);
     const status = computeStatus(nextDue, dueSoonWindow);
-  
+
     if (status !== "DUE_SOON" && status !== "OVERDUE") continue;
-  
+
     if (!grouped[a.assignedTo]) grouped[a.assignedTo] = [];
     grouped[a.assignedTo].push({ asset: a, nextDue, status });
   }
@@ -46,24 +46,24 @@ export async function GET(req: Request) {
 
   let sent = 0;
   const errors: Array<{ to: string; error: string }> = [];
-  
+
   for (const [email, items] of Object.entries(grouped)) {
     try {
       const subject =
         items.some(i => i.status === "OVERDUE")
           ? "Maintenance Alert: Overdue Assets"
           : "Maintenance Reminder: Upcoming Assets";
-  
+
       const rows = items.map(i => `
         <tr>
           <td>${i.asset.name}</td>
           <td>${i.asset.assetId}</td>
           <td>${i.asset.category}</td>
-          <td>${i.nextDue.toISOString().slice(0,10)}</td>
+          <td>${i.nextDue.toISOString().slice(0, 10)}</td>
           <td>${i.status === "OVERDUE" ? "Overdue" : "Due Soon"}</td>
         </tr>
       `).join("");
-  
+
       const html = `
         <div style="font-family: system-ui, sans-serif">
           <h2>${subject}</h2>
@@ -87,20 +87,20 @@ export async function GET(req: Request) {
           </p>
         </div>
       `;
-  
+
       await sendReminderEmail({
         to: email,
         subject,
         html,
       });
-  
+
       sent++;
-    } catch (e: any) {
-      errors.push({ to: email, error: e?.message || "unknown" });
+    } catch (e: unknown) {
+      errors.push({ to: email, error: e instanceof Error ? e.message : "unknown" });
     }
   }
 
-  
+
 
   return NextResponse.json({
     ok: true,

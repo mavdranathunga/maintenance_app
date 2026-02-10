@@ -10,19 +10,8 @@ export default async function AdminAssetsPage() {
   await requireAdmin();
 
   const assets = await prisma.asset.findMany({
-  orderBy: { assetId: "desc" },
-  select: {
-    id: true,
-    assetId: true,
-    name: true,
-    category: true,
-    location: true,
-    frequencyDays: true,
-    lastMaintenance: true,
-    assignedTo: true,
-    notes: true,
-  },
-});
+    orderBy: { assetId: "desc" },
+  });
 
   const categories = Array.from(new Set(assets.map((a) => a.category))).sort();
 
@@ -63,7 +52,7 @@ export default async function AdminAssetsPage() {
         categories={categories}
         locations={locations}
       />
-      
+
     </main>
   );
 }
