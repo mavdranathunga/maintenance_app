@@ -24,7 +24,8 @@ const AssetSchema = z.object({
 });
 
 export async function createAsset(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const performedBy = session.user?.email ?? null;
 
   const parsed = AssetSchema.safeParse({
     assetId: formData.get("assetId"),
@@ -44,30 +45,62 @@ export async function createAsset(formData: FormData) {
     ).toJSON();
   }
 
-  await prisma.asset.create({
-    data: {
-      ...parsed.data,
-      lastMaintenance: new Date(parsed.data.lastMaintenance),
-    },
+  await prisma.$transaction(async (tx) => {
+    const asset = await tx.asset.create({
+      data: {
+        ...parsed.data,
+        lastMaintenance: new Date(parsed.data.lastMaintenance),
+      },
+    });
+
+    await tx.assetAuditLog.create({
+      data: {
+        assetId: asset.assetId,
+        originalName: asset.name,
+        action: "CREATE",
+        performedBy,
+        details: `Asset registered in ${asset.category} at ${asset.location ?? "Unknown"}`,
+      },
+    });
   });
 
   revalidatePath("/admin/assets");
+  revalidatePath("/admin/records");
   return { ok: true as const };
 }
 
 export async function deleteAsset(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const performedBy = session.user?.email ?? null;
 
   const id = String(formData.get("id") || "");
   if (!id) return createBadRequestError("Asset ID is required").toJSON();
 
-  await prisma.asset.delete({ where: { id } });
+  await prisma.$transaction(async (tx) => {
+    const asset = await tx.asset.findUnique({ where: { id } });
+    if (!asset) throw new Error("Asset not found");
+
+    await tx.assetAuditLog.create({
+      data: {
+        assetId: asset.assetId,
+        originalName: asset.name,
+        action: "DELETE",
+        performedBy,
+        details: `Asset purged from registry. Final location: ${asset.location ?? "N/A"}`,
+      },
+    });
+
+    await tx.asset.delete({ where: { id } });
+  });
+
   revalidatePath("/admin/assets");
+  revalidatePath("/admin/records");
   return { ok: true as const };
 }
 
 export async function updateAsset(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const performedBy = session.user?.email ?? null;
 
   const id = String(formData.get("id") || "");
   if (!id) return createBadRequestError("Asset ID is required").toJSON();
@@ -90,15 +123,34 @@ export async function updateAsset(formData: FormData) {
     ).toJSON();
   }
 
-  await prisma.asset.update({
-    where: { id },
-    data: {
-      ...parsed.data,
-      lastMaintenance: new Date(parsed.data.lastMaintenance),
-    },
+  await prisma.$transaction(async (tx) => {
+    const oldAsset = await tx.asset.findUnique({ where: { id } });
+
+    const asset = await tx.asset.update({
+      where: { id },
+      data: {
+        ...parsed.data,
+        lastMaintenance: new Date(parsed.data.lastMaintenance),
+      },
+    });
+
+    const changes = [];
+    if (oldAsset?.name !== asset.name) changes.push(`name: ${oldAsset?.name} -> ${asset.name}`);
+    if (oldAsset?.location !== asset.location) changes.push(`loc: ${oldAsset?.location} -> ${asset.location}`);
+
+    await tx.assetAuditLog.create({
+      data: {
+        assetId: asset.assetId,
+        originalName: asset.name,
+        action: "UPDATE",
+        performedBy,
+        details: changes.length > 0 ? `Updated ${changes.join(", ")}` : "Registry metadata updated",
+      },
+    });
   });
 
   revalidatePath("/admin/assets");
+  revalidatePath("/admin/records");
   return { ok: true as const };
 }
 

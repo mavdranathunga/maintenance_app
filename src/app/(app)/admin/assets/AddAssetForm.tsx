@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { createAsset } from "./actions";
 
 const input =
-  "w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:ring-2 focus:ring-purple-500/30";
+  "w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 transition-all font-sans shadow-inner";
 
 export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) {
   const [pending, startTransition] = useTransition();
@@ -74,9 +74,9 @@ export default function AddAssetForm({ onSuccess }: { onSuccess?: () => void }) 
         </div>
       </div>
 
-      <div className="flex justify-end pt-2">
-        <Button disabled={pending} className="rounded-xl bg-white/10 hover:bg-white/15 border border-white/12">
-          {pending ? "Saving..." : "Save"}
+      <div className="flex justify-end pt-4">
+        <Button disabled={pending} className="rounded-2xl bg-white text-black hover:bg-white/90 px-8 py-6 h-auto font-bold shadow-xl border-none">
+          {pending ? "SYNCHRONIZING..." : "REGISTER ASSET"}
         </Button>
       </div>
     </form>

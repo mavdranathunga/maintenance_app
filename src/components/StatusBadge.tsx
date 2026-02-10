@@ -1,10 +1,20 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+
 type Status = "OK" | "DUE_SOON" | "OVERDUE";
 
 export default function StatusBadge({ status }: { status: Status }) {
   const map: Record<Status, string> = {
-    OK: "border-emerald-400/30 bg-emerald-400/10 text-emerald-200",
-    DUE_SOON: "border-amber-400/30 bg-amber-400/10 text-amber-200",
-    OVERDUE: "border-rose-400/30 bg-rose-400/10 text-rose-200",
+    OK: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
+    DUE_SOON: "border-amber-500/20 bg-amber-500/10 text-amber-400",
+    OVERDUE: "border-rose-500/20 bg-rose-500/10 text-rose-400",
+  };
+
+  const dotMap: Record<Status, string> = {
+    OK: "bg-emerald-500",
+    DUE_SOON: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse-soft",
+    OVERDUE: "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse",
   };
 
   const label =
@@ -12,8 +22,12 @@ export default function StatusBadge({ status }: { status: Status }) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${map[status]}`}
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border px-2.5 py-0.5 text-[11px] font-bold tracking-wide uppercase",
+        map[status]
+      )}
     >
+      <div className={cn("h-1.5 w-1.5 rounded-full", dotMap[status])} />
       {label}
     </span>
   );

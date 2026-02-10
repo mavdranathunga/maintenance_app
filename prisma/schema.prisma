@@ -122,3 +122,24 @@ model MaintenanceRecord {
   @@index([action, performedAt])
   @@index([updatedByEmail])
 }
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model AssetAuditLog {
+  id              String      @id @default(cuid())
+  assetId         String      // The unique asset identity (e.g. SRV-001)
+  originalName    String?     // Name at time of log
+  action          AuditAction
+  details         String?     // Change summary or remarks
+  performedBy     String?     // User email
+  timestamp       DateTime    @default(now())
+
+  createdAt       DateTime    @default(now())
+
+  @@index([assetId])
+  @@index([action])
+  @@index([timestamp])
+}

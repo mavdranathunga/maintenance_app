@@ -18,10 +18,10 @@ export default function AddAssetButton() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="rounded-xl bg-white/10 hover:bg-white/15 border border-white/12">
-          <PlusCircle className="h-4 w-4 text-yellow-600" />
-          Add Asset
-        </Button>
+        <button className="flex items-center gap-2.5 rounded-2xl glass-hover bg-white/5 border border-white/10 px-5 py-2.5 text-sm font-semibold transition-all hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] group">
+          <PlusCircle className="h-4 w-4 text-white/40 group-hover:text-white transition-colors" />
+          <span className="text-white/90 group-hover:text-white">Add Asset</span>
+        </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[720px] border-white/12 bg-[#0b1020]/85 text-white backdrop-blur-xl">

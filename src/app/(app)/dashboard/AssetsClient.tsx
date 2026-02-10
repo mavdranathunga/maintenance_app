@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import MaintenanceActions from "@/app/(app)/admin/assets/MaintenanceActions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
-import { CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Clock, AlertTriangle, Search, Filter } from "lucide-react";
+import StatusBadge from "@/components/StatusBadge";
+import { cn } from "@/lib/utils";
 
 type Asset = {
   id: string;
@@ -48,139 +50,130 @@ export default function AssetsClient({ assets }: { assets: Asset[] }) {
   }, [assets, q, status, category]);
 
   return (
-    <div className="space-y-4">
-      {/* Search + Filters */}
-      <div className="grid gap-3 md:grid-cols-3">
-        <input
-          className="rounded-xl glass px-3 py-2 text-sm text-white placeholder:text-white/40 bg-transparent outline-none focus:ring-2 focus:ring-purple-500/30"
-          placeholder="Search by name / id / location..."
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+    <div className="space-y-6">
+      {/* Search + Filters Toolbar */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+          <input
+            className="w-full rounded-2xl bg-white/[0.03] border border-white/10 px-11 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500/40 transition-all"
+            placeholder="Search assets by name, ID or location..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
 
-        <Select value={status} onValueChange={(v) => setStatus(v as Asset["status"] | "ALL")}>
-          <SelectTrigger className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30">
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-
-          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
-            <SelectItem value="ALL" className="focus:bg-white/10 focus:text-white">
-              All Status
-            </SelectItem>
-            <SelectItem value="OK" className="flex items-center gap-2 focus:bg-white/10 focus:text-white">
+        <div className="flex flex-wrap gap-3">
+          <Select value={status} onValueChange={(v) => setStatus(v as Asset["status"] | "ALL")}>
+            <SelectTrigger className="w-[160px] rounded-2xl border border-white/10 bg-white/[0.03] text-white shadow-xl focus:ring-2 focus:ring-purple-500/20 h-full py-3">
               <div className="flex items-center gap-2">
-                <Clock className="h-3 w-3 text-emerald-400" />
-                OK
+                <Filter className="h-3.5 w-3.5 text-white/40" />
+                <SelectValue placeholder="Status" />
               </div>
-            </SelectItem>
-            <SelectItem value="DUE_SOON" className="focus:bg-white/10 focus:text-white">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-3 w-3 text-amber-400" />
-                Due Soon
-              </div>
-            </SelectItem>
-            <SelectItem value="OVERDUE" className="focus:bg-white/10 focus:text-white">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-3 w-3 text-red-400" />
-                Overdue
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
+            </SelectTrigger>
 
-        <Select value={category} onValueChange={(v) => setCategory(v)}>
-          <SelectTrigger className="w-full rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xl text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] focus:ring-2 focus:ring-purple-500/30">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-
-          <SelectContent className="border border-white/12 bg-[#0b1020]/90 backdrop-blur-xl text-white shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
-            {categories.map((c) => (
-              <SelectItem
-                key={c}
-                value={c}
-                className="focus:bg-white/10 focus:text-white "
-              >
-                {c === "ALL" ? "All Categories" : c}
+            <SelectContent className="border border-white/12 bg-background/95 backdrop-blur-3xl text-white shadow-2xl">
+              <SelectItem value="ALL" className="focus:bg-white/10">All Status</SelectItem>
+              <SelectItem value="OK" className="focus:bg-white/10">
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Healthy
+                </div>
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              <SelectItem value="DUE_SOON" className="focus:bg-white/10">
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  Due Soon
+                </div>
+              </SelectItem>
+              <SelectItem value="OVERDUE" className="focus:bg-white/10">
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-rose-500 font-bold" />
+                  Overdue
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={category} onValueChange={(v) => setCategory(v)}>
+            <SelectTrigger className="w-[180px] rounded-2xl border border-white/10 bg-white/[0.03] text-white shadow-xl focus:ring-2 focus:ring-purple-500/20 h-full py-3">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+
+            <SelectContent className="border border-white/12 bg-background/95 backdrop-blur-3xl text-white shadow-2xl">
+              {categories.map((c) => (
+                <SelectItem key={c} value={c} className="focus:bg-white/10">
+                  {c === "ALL" ? "All Categories" : c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl glass-strong shadow-[0_20px_80px_rgba(0,0,0,0.35)] overflow-hidden">
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="font-semibold">Assets</div>
-          <div className="mt-3 text-xs text-white/60">
-            Showing <span className="text-white/80">{filtered.length}</span> of{" "}
-            <span className="text-white/80">{assets.length}</span>
+      {/* Modern Asset Table */}
+      <div className="rounded-[2.5rem] glass-strong shadow-[0_40px_160px_rgba(0,0,0,0.6)] border border-white/10 overflow-hidden bg-background/40">
+        <div className="p-8 border-b border-white/5 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-white uppercase text-[14px] tracking-widest">Asset Inventory</h2>
+            <p className="text-xs text-white/50 font-medium mt-1.5 flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-purple-500 animate-pulse" />
+              Synchronized with <span className="text-purple-300 font-bold">PostgreSQL Pulse</span>
+            </p>
+          </div>
+          <div className="text-[11px] font-bold text-white/60 bg-white/5 px-4 py-2 rounded-xl border border-white/10 shadow-inner">
+            MATCHING: <span className="text-white font-extrabold">{filtered.length}</span> / {assets.length}
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="mx-auto w-full max-w-5xl text-sm">
-            <thead className="text-left opacity-70">
-              <tr className="border-b border-white/10 text-white/70">
-                <th className="p-3">Asset</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Location</th>
-                <th className="p-3">Next Due</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Assigned</th>
-                <th className="p-3">Actions</th>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-white/50 font-bold uppercase text-[10px] tracking-[0.2em] bg-white/[0.02]">
+                <th className="px-8 py-6">Ident / Name</th>
+                <th className="px-6 py-6 border-l border-white/5">Classification</th>
+                <th className="px-6 py-6 border-l border-white/5">Locale</th>
+                <th className="px-6 py-6 border-l border-white/5">Terminal Date</th>
+                <th className="px-6 py-6 border-l border-white/5">Status Core</th>
+                <th className="px-6 py-6 border-l border-white/5">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-white/5">
               {filtered.map((a) => (
-                <tr key={a.id} className="border-b border-white/10 last:border-b-0 hover:bg-white/[0.04] transition">
-                  <td className="p-3">
-                    <div className="font-medium">{a.name}</div>
-                    <div className="opacity-70">{a.assetId}</div>
+                <tr key={a.id} className="group hover:bg-white/[0.04] transition-all duration-300">
+                  <td className="px-8 py-6">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-white text-[15px] group-hover:text-purple-300 transition-colors capitalize">{a.name}</span>
+                      <span className="text-[11px] font-mono text-white/40 mt-1 uppercase tracking-tight">{a.assetId}</span>
+                    </div>
                   </td>
-                  <td className="p-3">{a.category}</td>
-                  <td className="p-3">{a.location ?? "-"}</td>
-                  <td className="p-3">{a.nextDue}</td>
-                  <td className="p-3">
-                    <Badge status={a.status} />
+                  <td className="px-6 py-6 font-semibold text-white/80 text-[13px]">{a.category}</td>
+                  <td className="px-6 py-6 font-semibold text-white/80 text-[13px]">{a.location ?? "—"}</td>
+                  <td className="px-6 py-6 font-bold text-white text-[13px] tabular-nums">{a.nextDue}</td>
+                  <td className="px-6 py-6">
+                    <StatusBadge status={a.status} />
                   </td>
-                  <td className="p-3">{a.assignedTo ?? "-"}</td>
-                  <td className="p-3">
-                    <div className="inline-flex items-center gap-2">
+                  <td className="px-6 py-6">
+                    <div className="opacity-40 group-hover:opacity-100 transition-opacity">
                       <MaintenanceActions assetId={a.id} />
                     </div>
                   </td>
                 </tr>
               ))}
-
-              {filtered.length === 0 && (
-                <tr>
-                  <td className="p-6 opacity-70" colSpan={6}>
-                    No matching assets.
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
+
+          {filtered.length === 0 && (
+            <div className="p-16 text-center">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 border border-white/10 mb-4 animate-bounce">
+                <Search className="h-8 w-8 text-white/20" />
+              </div>
+              <p className="text-white/40 font-bold uppercase tracking-widest text-xs">No matching telemetry found</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
-  );
-}
-
-function Badge({ status }: { status: "OK" | "DUE_SOON" | "OVERDUE" }) {
-  const label = status === "OK" ? "OK" : status === "DUE_SOON" ? "Due Soon" : "Overdue";
-
-  const cls =
-    status === "OK"
-      ? "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
-      : status === "DUE_SOON"
-        ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
-        : "border-rose-300/20 bg-rose-300/10 text-rose-100";
-
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-1 text-xs ${cls}`}>
-      {label}
-    </span>
   );
 }
 
